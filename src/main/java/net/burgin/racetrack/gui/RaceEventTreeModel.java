@@ -62,13 +62,9 @@ public class RaceEventTreeModel implements TreeModel, RaceEventChangeListener{
 
     @Override
     public int getIndexOfChild(Object parent, Object child) {
-        if(parent == null || child == null)
+        if(parent == null || child == null || !(parent instanceof RaceParent) || !(child instanceof Race))
             return -1;
-        if(parent == raceEvent)
-            return raceEvent.getRaces().indexOf(child);
-        if(parent instanceof Runoff && ((Runoff)parent).getRaceEvent() == raceEvent )
-            return ((Runoff)parent).getChildRaces().indexOf(child);
-        return -1;
+        return ((RaceParent)parent).indexOf((Race)child);
     }
 
     @Override

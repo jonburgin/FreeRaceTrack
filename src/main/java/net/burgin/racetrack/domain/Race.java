@@ -1,6 +1,6 @@
 package net.burgin.racetrack.domain;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,13 +11,9 @@ import java.util.*;
  */
 @Getter
 @Setter
-public class Race {
+public class Race extends AbstractRaceEventChangeNotifier{
     String name;
     Set<String> classes = new HashSet<>();
-    List<Heat> heats = new ArrayList<>();
-    List<Car> cars = new ArrayList<>();
-    RaceEvent raceEvent;
-    RaceParent raceParent;
 
     public Race(){}
     public Race(String name, String... classes){
@@ -32,6 +28,6 @@ public class Race {
 
     public void setName(String name){
         this.name = name;
-        raceEvent.raceChanged(this);
+        raceChanged(this);
     }
 }

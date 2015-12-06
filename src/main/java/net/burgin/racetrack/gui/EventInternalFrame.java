@@ -10,11 +10,8 @@ import net.burgin.racetrack.gui.actions.AddOwnerAction;
 import net.burgin.racetrack.gui.actions.AddRaceAction;
 
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.util.stream.Collectors;
 
 /**
  * Created by jonburgin on 12/4/15.
@@ -25,7 +22,9 @@ public class EventInternalFrame extends JInternalFrame {
     JList<Car> carsList = new JList<>();
     JLabel carNameLabel = new JLabel("Speedster");
     JLabel ownerNameLabel = new JLabel("Duke");
-    ImageIcon carImageIcon = new ImageIcon("images/duke.gif");
+    JLabel carClassLabel = new JLabel("Tiger");
+    ImageIcon personImageIcon = new ImageIcon(ClassLoader.getSystemClassLoader().getSystemResource("images/duke.gif"));
+    ImageIcon carImageIcon = new ImageIcon(ClassLoader.getSystemClassLoader().getSystemResource("images/pinewood-derby.jpg"));
 
     public EventInternalFrame(RaceEvent raceEvent){
         if(raceEvent == null)throw new IllegalArgumentException("RaceEvent may not be null!");
@@ -45,35 +44,93 @@ public class EventInternalFrame extends JInternalFrame {
     }
 
     private Component buildCenterPanel() {
-        Box box = Box.createHorizontalBox();
-        box.add(buildRaceListPanel());
-        box.add(buildCarListPanel());
-        box.add(buildCarDetailPanel());
-        return box;
+        JTabbedPane pane = new JTabbedPane();
+        pane.addTab(RaceTrackResourceBundle.getInstance().getString("raceTabTitle"), buildRacePanel());
+        pane.addTab(RaceTrackResourceBundle.getInstance().getString("racerTabTitle"), buildOwnerTab());
+        pane.addTab(RaceTrackResourceBundle.getInstance().getString("carTabTitle"), buildCarTab());
+        return pane;
+    }
+
+    private Component buildCarTab() {
+        return new RaceEventListPanel(raceEvent, r->r.getRacers().stream().map(racer->racer.getCars()).flatMap(car->car.stream()).collect(Collectors.toList()));
+    }
+
+    private Component buildOwnerTab() {
+        return new RaceEventListPanel(raceEvent, r->r.getRacers());
+    }
+
+    private Component buildRacePanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gc = new GridBagConstraints();
+        gc.weightx = 1;
+        gc.weighty = 1;
+        gc.fill = GridBagConstraints.BOTH;
+        gc.gridx=0;
+        gc.gridy=0;
+        panel.add(buildRaceListPanel(),gc);
+        gc.gridx++;
+        panel.add(buildCarListPanel(),gc);
+        gc.gridx++;
+        panel.add(buildCarDetailPanel(), gc);
+        return panel;
+
     }
 
     private Component buildCarDetailPanel() {
-        Box nameBox = Box.createHorizontalBox();
-        nameBox.add(new JLabel(RaceTrackResourceBundle.getInstance().getString("name")));
-        nameBox.add(Box.createHorizontalStrut(5));
-        carNameLabel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        nameBox.add(carNameLabel);
-        nameBox.add(Box.createGlue());
-        nameBox.setAlignmentY(TOP_ALIGNMENT);
-        Box ownerBox = Box.createHorizontalBox();
-        ownerBox.add(new JLabel(RaceTrackResourceBundle.getInstance().getString("owner")));
-        ownerBox.add(Box.createHorizontalStrut(5));
-        ownerNameLabel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        ownerBox.add(ownerNameLabel);
-        ownerBox.add(Box.createGlue());
-        ownerBox.setAlignmentY(TOP_ALIGNMENT);
-        Box box = Box.createVerticalBox();
-        box.setBorder(BorderFactory.createTitledBorder(RaceTrackResourceBundle.getInstance().getString("car.detail.title")));
-        box.add(nameBox);
-        box.add(ownerBox);
-        box.add(new JLabel(carImageIcon));
-        box.add(Box.createVerticalGlue());
-        return box;
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createTitledBorder(RaceTrackResourceBundle.getInstance().getString("car.detail.title")));
+        GridBagConstraints gc = new GridBagConstraints();
+        gc.insets = new Insets(3,3,3,3);
+        gc.fill = GridBagConstraints.NONE;
+        gc.anchor = GridBagConstraints.NORTHWEST;
+        gc.gridx=0;
+        gc.gridy=0;
+        panel.add(new JLabel(RaceTrackResourceBundle.getInstance().getString("name")),gc);
+        gc.gridx++;
+        panel.add(carNameLabel,gc);
+        gc.gridx++;
+        gc.gridwidth=GridBagConstraints.REMAINDER;
+        gc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(new JPanel());
+        gc.fill = GridBagConstraints.NONE;
+        gc.gridwidth = GridBagConstraints.RELATIVE;
+        //----
+        gc.gridx = 0;
+        gc.gridy++;
+        panel.add(new JLabel(RaceTrackResourceBundle.getInstance().getString("class")),gc);
+        gc.gridx++;
+        panel.add(carClassLabel, gc);
+        //-----
+        gc.gridx = 0;
+        gc.gridy++;
+        gc.weightx = 1;
+        gc.gridwidth=3;
+        //gc.gridwidth = GridBagConstraints.RELATIVE;
+        gc.fill = GridBagConstraints.BOTH;
+        panel.add(new JLabel(carImageIcon), gc);
+        gc.fill = GridBagConstraints.NONE;
+        gc.gridwidth=1;
+        gc.weightx = 0;
+        //----
+        gc.gridx=0;
+        gc.gridy++;
+        panel.add(new JLabel(RaceTrackResourceBundle.getInstance().getString("racer")),gc);
+        gc.gridx++;
+        panel.add(ownerNameLabel,gc);
+        gc.weightx = 1;
+        gc.gridwidth = GridBagConstraints.RELATIVE;
+        //---
+        gc.gridx=0;
+        gc.gridy++;
+        gc.gridwidth=3;
+        gc.fill = GridBagConstraints.BOTH;
+        panel.add(new JLabel(personImageIcon), gc);
+        //--
+        gc.gridy++;
+        gc.weighty = 1;
+        gc.gridheight=GridBagConstraints.REMAINDER;
+        panel.add(new JPanel(),gc);
+        return panel;
     }
 
     private Component buildCarListPanel() {

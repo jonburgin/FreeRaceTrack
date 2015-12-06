@@ -83,6 +83,7 @@ public class RaceTrackGui extends JFrame implements Runnable,
     }
 
     public static void main(String[] args) {
+
         SwingUtilities.invokeLater(new RaceTrackGui());
     }
 

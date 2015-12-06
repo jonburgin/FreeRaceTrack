@@ -12,8 +12,8 @@ import java.util.ResourceBundle;
 public class AddOwnerAction extends AbstractAction {
     public AddOwnerAction() {
         ResourceBundle resourceBundle = RaceTrackResourceBundle.getInstance();
-        this.putValue(Action.NAME, resourceBundle.getString("owner.new.action.name"));
-        this.putValue(Action.DISPLAYED_MNEMONIC_INDEX_KEY, Integer.parseInt(resourceBundle.getString("owner.new.action.mnemonic.index")));
+        this.putValue(Action.NAME, resourceBundle.getString("racer.new.action.name"));
+        this.putValue(Action.DISPLAYED_MNEMONIC_INDEX_KEY, Integer.parseInt(resourceBundle.getString("racer.new.action.mnemonic.index")));
     }
 
     @Override

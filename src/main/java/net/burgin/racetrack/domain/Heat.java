@@ -1,5 +1,6 @@
 package net.burgin.racetrack.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.awt.*;
@@ -12,5 +13,6 @@ import java.util.List;
 public class Heat {
     List<Competitor> competitors;
     long startTime;
+    @JsonIgnore
     Image photofinish;
 }

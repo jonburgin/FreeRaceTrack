@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 public class Runoff extends Race implements RaceParent{
     List<Race> childRaces = new ArrayList<>();
-    int take;//number of winners to move up from child races.
+    int take = 1;//number of winners to move up from child races.
 
     public Runoff(){
         super();
@@ -25,31 +25,28 @@ public class Runoff extends Race implements RaceParent{
         this.take = take;
     }
 
-    public void setRaceEvent(RaceEvent raceEvent){
-        this.raceEvent = raceEvent;
-        childRaces.stream().forEach(c->c.setRaceEvent(raceEvent));
-    }
-
     public void addRace(Race race){
         childRaces.add(race);
-        race.setRaceParent(this);
-        race.setRaceEvent(raceEvent);
         classes.addAll(race.classes);
-        raceEvent.raceAdded(this, race, childRaces.indexOf(race));
+        raceEventChangeListeners.stream().forEach(l->race.addRaceEventChangeListener(l));
+        raceAdded(this, race, childRaces.indexOf(race));
     }
 
     public void removeRace(Race race){
         int index = childRaces.indexOf(race);
         childRaces.remove(index);
-        race.setRaceParent(null);
-        race.setRaceEvent(null);
-        raceEvent.raceRemoved(this, race, index);
+        raceRemoved(this, race, index);
         adoptClassesOfChildRaces();
     }
 
     private void adoptClassesOfChildRaces(){
         classes.clear();
         childRaces.stream().forEach(r->classes.addAll(r.classes));
+    }
+
+    @Override
+    public List<Race> getRaces() {
+        return getChildRaces();
     }
 
     @Override
