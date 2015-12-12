@@ -16,10 +16,5 @@ public class RaceEvent extends AbstractRaceParent {
     String name;
     Set<String> competitionClasses = new HashSet<>();
     List<Racer> racers = new ArrayList<>();
-//
-//    public String toString(){
-//        return name;
-////        return competitionClasses.stream()
-////                .collect(Collectors.joining(",",name + " (",")"));
-//    }
+
 }

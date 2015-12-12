@@ -25,7 +25,7 @@ public class RacetrackWebcamPanel extends WebcamPanel implements HotSpotListener
     boolean displayLanes ;
     boolean showHotSpot = true;
     boolean showRaceTime;
-    private Track track = new Track();
+    private GeometricTrack geometricTrack = new GeometricTrack();
     private HotSpotDetector oneTimeHotSpotDetector;
     private List<Point> detectedHotSpots = new ArrayList<>();
     public RacetrackWebcamPanel(Webcam webcam) {
@@ -304,11 +304,11 @@ public class RacetrackWebcamPanel extends WebcamPanel implements HotSpotListener
 
             if(showHotSpot){
                 g2.setColor(Color.WHITE);
-                g2.drawOval(track.getRaceStartHotSpot().x-10, track.getRaceStartHotSpot().y-10, 20,20);
+                g2.drawOval(geometricTrack.getRaceStartHotSpot().x-10, geometricTrack.getRaceStartHotSpot().y-10, 20,20);
                 String s = "Start HotSpot";
                 FontMetrics metrics = g2.getFontMetrics(getFont());
-                int stringX = track.getRaceStartHotSpot().x - metrics.stringWidth(s)/2;
-                int stringY = track.getRaceStartHotSpot().y + metrics.getHeight() + 5;
+                int stringX = geometricTrack.getRaceStartHotSpot().x - metrics.stringWidth(s)/2;
+                int stringY = geometricTrack.getRaceStartHotSpot().y + metrics.getHeight() + 5;
                 drawString(g2, s,stringX, stringY);
             }
 
@@ -321,11 +321,11 @@ public class RacetrackWebcamPanel extends WebcamPanel implements HotSpotListener
         }
 
         private void drawLanes(Graphics2D g2) {
-            Point finishLinePosition = track.getFinishLinePosition();
-            track.getLanes().keySet().stream().forEach(key -> {
+            Point finishLinePosition = geometricTrack.getFinishLinePosition();
+            geometricTrack.getLanes().keySet().stream().forEach(key -> {
                 String str = String.format("%d", key + 1);
                 FontMetrics metrics = g2.getFontMetrics(getFont());
-                Point position = track.getLanes().get(key);
+                Point position = geometricTrack.getLanes().get(key);
                 int stringX = position.x - metrics.stringWidth(str)/2;
                 int stringY = position.y - 20;
                 drawString(g2, str, stringX, stringY);
@@ -336,9 +336,9 @@ public class RacetrackWebcamPanel extends WebcamPanel implements HotSpotListener
                 else
                     g2.drawPolygon(xPoints,yPoints,3);
             });
-            g2.drawLine(finishLinePosition.x, finishLinePosition.y, finishLinePosition.x + track.getWidth(), finishLinePosition.y);
+            g2.drawLine(finishLinePosition.x, finishLinePosition.y, finishLinePosition.x + geometricTrack.getWidth(), finishLinePosition.y);
             g2.drawOval(finishLinePosition.x - 10, finishLinePosition.y - 5, 10, 10);
-            g2.drawOval(finishLinePosition.x + track.getWidth(), finishLinePosition.y - 5, 10, 10);
+            g2.drawOval(finishLinePosition.x + geometricTrack.getWidth(), finishLinePosition.y - 5, 10, 10);
         }
 
         private void drawString(Graphics2D g2, String str, int stringX, int stringY) {

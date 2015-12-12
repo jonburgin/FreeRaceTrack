@@ -1,5 +1,6 @@
 package net.burgin.racetrack.domain;
 
+import lombok.Data;
 import net.burgin.racetrack.domain.Car;
 
 /**
@@ -7,7 +8,12 @@ import net.burgin.racetrack.domain.Car;
  *
  * This class represents the results of an individual cars performance in a heat
  */
+@Data
 public class Competitor {
     Car car;
     long raceTime;
+
+    public Competitor(Car car){
+        this.car = car;
+    }
 }

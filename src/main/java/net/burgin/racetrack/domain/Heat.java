@@ -18,4 +18,10 @@ public class Heat {
     long startTime;
     @JsonIgnore
     Image photofinish;
+
+    public Heat(){}
+    public Heat(List<Competitor> competitors){
+        this();
+        this.competitors = competitors;
+    }
 }

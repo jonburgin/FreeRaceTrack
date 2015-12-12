@@ -1,6 +1,7 @@
 package net.burgin.racetrack.detection;
 
 import lombok.Data;
+import net.burgin.racetrack.domain.Track;
 
 import java.util.*;
 import java.awt.*;
@@ -10,16 +11,16 @@ import java.util.List;
  * Created by jonburgin on 12/2/15.
  */
 @Data
-public class Track {
+public class GeometricTrack  implements Track{
     Point finishLinePosition = new Point(20, 200);
     int width = 200;
     Map<Integer, Point> lanes = new HashMap();
     private Point raceStartHotSpot = new Point(300, 200);
-    public Track() {
+    public GeometricTrack() {
         setLaneCount(6);
     }
 
-    public Track(int quantity, Point finishLinePosition, int width) {
+    public GeometricTrack(int quantity, Point finishLinePosition, int width) {
         setLaneCount(quantity);
         this.finishLinePosition = finishLinePosition;
         this.width = width;

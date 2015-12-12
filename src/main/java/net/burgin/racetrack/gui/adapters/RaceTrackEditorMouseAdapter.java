@@ -2,7 +2,7 @@ package net.burgin.racetrack.gui.adapters;
 
 import net.burgin.racetrack.detection.HotSpotDetector;
 import net.burgin.racetrack.detection.OneTimeHotSpotDetector;
-import net.burgin.racetrack.detection.Track;
+import net.burgin.racetrack.detection.GeometricTrack;
 import net.burgin.racetrack.gui.RacetrackWebcamPanel;
 
 import java.awt.*;
@@ -26,28 +26,28 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
     @Override
     public void mouseDragged(MouseEvent mouseEvent) {
         if(hotSpotPositioning){
-            Point hotSpot = racetrackWebcamPanel.getTrack().getRaceStartHotSpot();
+            Point hotSpot = racetrackWebcamPanel.getGeometricTrack().getRaceStartHotSpot();
             hotSpot.move(mouseEvent.getX(),mouseEvent.getY() );
         }
         if(trackPositioning){
-            racetrackWebcamPanel.getTrack().setFinishLinePosition(new Point(mouseEvent.getX(), mouseEvent.getY()));
+            racetrackWebcamPanel.getGeometricTrack().setFinishLinePosition(new Point(mouseEvent.getX(), mouseEvent.getY()));
         }
         if(trackStretching){
-            racetrackWebcamPanel.getTrack().adjustWidth(new Point(mouseEvent.getX(), mouseEvent.getY()));
+            racetrackWebcamPanel.getGeometricTrack().adjustWidth(new Point(mouseEvent.getX(), mouseEvent.getY()));
         }
     }
 
     @Override
     public void mouseMoved(MouseEvent mouseEvent) {
-        Point hotSpot = racetrackWebcamPanel.getTrack().getRaceStartHotSpot();
+        Point hotSpot = racetrackWebcamPanel.getGeometricTrack().getRaceStartHotSpot();
         boolean insideHotspot = closeEnough(mouseEvent,hotSpot,20);
-        Point trackMovePoint = racetrackWebcamPanel.getTrack().getMoveHotSpot();
+        Point trackMovePoint = racetrackWebcamPanel.getGeometricTrack().getMoveHotSpot();
         boolean insideTrackMove = closeEnough(mouseEvent,trackMovePoint,10);
         if(insideHotspot || insideTrackMove){
             setCursorType(Cursor.MOVE_CURSOR);
             return;
         }
-        Point trackStretchPoint = racetrackWebcamPanel.getTrack().getStretchHotSpot();
+        Point trackStretchPoint = racetrackWebcamPanel.getGeometricTrack().getStretchHotSpot();
         boolean insideTrackStretch = closeEnough(mouseEvent,trackStretchPoint, 20);
         if(insideTrackStretch){
             setCursorType(Cursor.E_RESIZE_CURSOR);
@@ -69,12 +69,12 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent mouseEvent) {
-        Point hotSpot = racetrackWebcamPanel.getTrack().getRaceStartHotSpot();
+        Point hotSpot = racetrackWebcamPanel.getGeometricTrack().getRaceStartHotSpot();
         if(closeEnough(mouseEvent,hotSpot,20)){
             hotSpotPositioning = true;
-        }else if(closeEnough(mouseEvent,racetrackWebcamPanel.getTrack().getMoveHotSpot(), 10)){
+        }else if(closeEnough(mouseEvent,racetrackWebcamPanel.getGeometricTrack().getMoveHotSpot(), 10)){
             trackPositioning = true;
-        }else if(closeEnough(mouseEvent,racetrackWebcamPanel.getTrack().getStretchHotSpot(),10)){
+        }else if(closeEnough(mouseEvent,racetrackWebcamPanel.getGeometricTrack().getStretchHotSpot(),10)){
             trackStretching = true;
         }
         if(trackPositioning || trackStretching || hotSpotPositioning){
@@ -97,10 +97,10 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
         trackPositioning = false;
         trackStretching = false;
         HotSpotDetector hotSpotDetector = racetrackWebcamPanel.getOneTimeHotSpotDetector();
-        Track track = racetrackWebcamPanel.getTrack();
+        GeometricTrack geometricTrack = racetrackWebcamPanel.getGeometricTrack();
         hotSpotDetector.removeHotSpots();
-        track.getLanes().values().stream().forEach(point -> hotSpotDetector.addHotSpotPoint(point));
-        hotSpotDetector.addHotSpotPoint(track.getRaceStartHotSpot());
+        geometricTrack.getLanes().values().stream().forEach(point -> hotSpotDetector.addHotSpotPoint(point));
+        hotSpotDetector.addHotSpotPoint(geometricTrack.getRaceStartHotSpot());
         hotSpotDetector.setEnabled(true);
     }
 }
