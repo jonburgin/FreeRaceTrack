@@ -19,7 +19,15 @@ public class Racer {
     @JsonIgnore
     Image image;
     public String toString(){
-        return cars.stream().map(c->c.getName()).collect(Collectors.joining(",", firstName + " " + lastName + " (", ")")).toString();
+        return cars.stream()
+                .map(c->c.getName())
+                .collect(Collectors.joining(",", firstName + " " + lastName + " (", ")")).toString();
+    }
 
+    public Racer(){}
+
+    public Racer(String firstName, String lastName){
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 }

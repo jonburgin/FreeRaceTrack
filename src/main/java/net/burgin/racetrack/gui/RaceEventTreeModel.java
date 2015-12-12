@@ -37,7 +37,7 @@ public class RaceEventTreeModel implements TreeModel, RaceEventChangeListener{
         }
         if(!(parent instanceof Runoff))
             return null;
-        List<Race> childRaces = ((Runoff) parent).getChildRaces();
+        List<RaceType> childRaces = ((Runoff) parent).getRaces();
         return (i >= 0) && (i < childRaces.size())? childRaces.get(i):null;
     }
 
@@ -46,7 +46,7 @@ public class RaceEventTreeModel implements TreeModel, RaceEventChangeListener{
         if(parent == raceEvent)
             return raceEvent.getRaces().size();
         if(parent instanceof Runoff)
-            return ((Runoff)parent).getChildRaces().size();
+            return ((Runoff)parent).getRaces().size();
         return 0;
     }
 
@@ -78,7 +78,7 @@ public class RaceEventTreeModel implements TreeModel, RaceEventChangeListener{
     }
 
     @Override
-    public void raceAdded(Object parent, Race race, int index) {
+    public void raceAdded(Object parent, RaceType race, int index) {
         Object[] tempPath = pathMap.get(parent);
         Object[] parentPath = tempPath != null?tempPath:new Object[]{parent};
         pathMap.put(parent,parentPath);
@@ -91,7 +91,7 @@ public class RaceEventTreeModel implements TreeModel, RaceEventChangeListener{
     }
 
     @Override
-    public void raceRemoved(Object parent, Race race, int index) {
+    public void raceRemoved(Object parent, RaceType race, int index) {
         Object[] parentPath = pathMap.get(parent);
         TreeModelEvent treeModelEvent = new TreeModelEvent(this, parentPath, new int[]{index}, new Object[]{race});
         Consumer<TreeModelListener> c = l->l.treeNodesRemoved(treeModelEvent);
@@ -99,7 +99,7 @@ public class RaceEventTreeModel implements TreeModel, RaceEventChangeListener{
     }
 
     @Override
-    public void raceChanged(Race race){
+    public void raceChanged(RaceType race){
         Object[] childPath = pathMap.get(race);
         Object parent = childPath[childPath.length - 2];
         int index = ((RaceParent)parent).indexOf(race);

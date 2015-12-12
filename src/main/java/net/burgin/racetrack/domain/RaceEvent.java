@@ -1,37 +1,25 @@
 package net.burgin.racetrack.domain;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by jonburgin on 12/4/15.
  */
-@Getter
-@Setter
-public class RaceEvent extends AbstractRaceEventChangeNotifier implements RaceParent  {
+@Data
+public class RaceEvent extends AbstractRaceParent {
     String name;
-    long date;
-    private List<Race> races = new ArrayList<>();
-    List<String> classes = new ArrayList<>();
+    Set<String> competitionClasses = new HashSet<>();
     List<Racer> racers = new ArrayList<>();
-
-    public void addRace(Race race){
-        races.add(race);
-        raceEventChangeListeners.stream().forEach(l->race.addRaceEventChangeListener(l));
-        raceAdded(this, race, races.indexOf(race));
-    }
-
-    public void removeRace(Race race){
-        int index = races.indexOf(race);
-        raceRemoved(this, race, index);
-    }
-
-    @Override
-    public int indexOf(Race race) {
-        return races.indexOf(race);
-    }
+//
+//    public String toString(){
+//        return name;
+////        return competitionClasses.stream()
+////                .collect(Collectors.joining(",",name + " (",")"));
+//    }
 }

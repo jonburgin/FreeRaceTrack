@@ -1,19 +1,16 @@
 package net.burgin.racetrack.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by jonburgin on 12/4/15.
  */
-@Getter
-@Setter
-public class Runoff extends Race implements RaceParent{
-    List<Race> childRaces = new ArrayList<>();
+@Data
+public class Runoff extends AbstractRaceParent {
     int take = 1;//number of winners to move up from child races.
 
     public Runoff(){
@@ -25,37 +22,16 @@ public class Runoff extends Race implements RaceParent{
         this.take = take;
     }
 
-    public void addRace(Race race){
-        childRaces.add(race);
-        classes.addAll(race.classes);
-        raceEventChangeListeners.stream().forEach(l->race.addRaceEventChangeListener(l));
-        raceAdded(this, race, childRaces.indexOf(race));
+    @JsonIgnore
+    public Set<String> getCompetitionClasses(){
+        return races.stream()
+                .map(race -> race.getCompetitionClasses())
+                .flatMap(l->l.stream())
+                .collect(Collectors.toSet());
     }
 
-    public void removeRace(Race race){
-        int index = childRaces.indexOf(race);
-        childRaces.remove(index);
-        raceRemoved(this, race, index);
-        adoptClassesOfChildRaces();
-    }
-
-    private void adoptClassesOfChildRaces(){
-        classes.clear();
-        childRaces.stream().forEach(r->classes.addAll(r.classes));
-    }
-
-    @Override
-    public List<Race> getRaces() {
-        return getChildRaces();
-    }
-
-    @Override
-    public int indexOf(Race race) {
-        return childRaces.indexOf(race);
-    }
-
-    @Override
     public String toString(){
-        return name;
+        return getCompetitionClasses().stream()
+                .collect(Collectors.joining(",",name + " (",")"));
     }
 }

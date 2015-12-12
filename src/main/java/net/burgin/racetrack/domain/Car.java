@@ -16,4 +16,15 @@ public class Car {
     String competitionClass;
     @JsonIgnore
     Image image;
+
+    public Car(){}
+
+    public Car(String name, String competitionClass){
+        this.name = name;
+        this.competitionClass = competitionClass;
+    }
+
+    public String toString(){
+        return String.format("%s (%s)",name, competitionClass).toString();
+    }
 }
