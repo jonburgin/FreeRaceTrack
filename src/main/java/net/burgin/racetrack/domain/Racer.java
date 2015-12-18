@@ -2,17 +2,25 @@ package net.burgin.racetrack.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
  * Created by jonburgin on 12/4/15.
  */
-@Data
+
+@Getter
+@Setter
+@EqualsAndHashCode(exclude="image")
 public class Racer {
+    UUID uuid = UUID.randomUUID();
     String firstName;
     String lastName;
     List<Car> cars = new ArrayList<>();

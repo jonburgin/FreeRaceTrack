@@ -8,6 +8,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 class RacerTest extends Specification{
+    @Shared
     def racer = new Racer("Jon", "Burgin")
     @Shared
     def mapper = new ObjectMapper()
@@ -16,16 +17,9 @@ class RacerTest extends Specification{
         racer.setCars(Arrays.asList(new Car("Herbie", "Tiger"), new Car("Dominator", "Web II")));
     }
 
-    def "Json output is correct"(){
+    def "Json serializatin/deserialization is correct"(){
         when:
-            def jsonString = mapper.writeValueAsString(racer)
-        then:
-            jsonString.equals("{\"firstName\":\"Jon\",\"lastName\":\"Burgin\",\"cars\":[{\"name\":\"Herbie\",\"competitionClass\":\"Tiger\"},{\"name\":\"Dominator\",\"competitionClass\":\"Web II\"}]}")
-    }
-
-    def "Json input is correct"(){
-        when:
-        def racerRead = mapper.readValue("{\"firstName\":\"Jon\",\"lastName\":\"Burgin\",\"cars\":[{\"name\":\"Herbie\",\"competitionClass\":\"Tiger\"},{\"name\":\"Dominator\",\"competitionClass\":\"Web II\"}]}", Racer.class)
+        def racerRead = mapper.readValue(mapper.writeValueAsString(racer), Racer.class)
         then:
         racerRead.firstName == "Jon"
         racerRead.lastName == "Burgin"

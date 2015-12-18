@@ -32,17 +32,9 @@ class RaceEventTest extends Specification {
         raceEvent.setCompetitionClasses(new HashSet(Arrays.asList(class1,class2)))
     }
 
-    def "json output is correct"(){
+    def "json serilization/deserlization is correct"(){
         when:
-        def jsonString = mapper.writeValueAsString(raceEvent)
-        //System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(raceEvent))
-        then:
-        jsonString.equals(expectedJson)
-    }
-
-    def "json input is correct"(){
-        when:
-        def raceEventRead = mapper.readValue(expectedJson, RaceEvent.class)
+        def raceEventRead = mapper.readValue(mapper.writeValueAsString(raceEvent), RaceEvent.class)
         then:
         raceEventRead.equals(raceEvent)
     }

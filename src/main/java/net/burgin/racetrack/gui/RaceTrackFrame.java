@@ -12,7 +12,7 @@ import java.awt.event.*;
 /**
  * Created by jonburgin on 11/13/15.
  */
-public class RaceTrackGui extends JFrame implements Runnable,
+public class RaceTrackFrame extends JFrame implements Runnable,
         Thread.UncaughtExceptionHandler, ItemListener,WebcamDiscoveryListener{
 
     private static final long serialVersionUID = 1L;
@@ -73,7 +73,7 @@ public class RaceTrackGui extends JFrame implements Runnable,
             @Override
             public void run() {
                 webcam.open(true);
-                RaceTrackGui.this.panel.start();
+                RaceTrackFrame.this.panel.start();
             }
         };
         t.setName("example-starter");
@@ -83,8 +83,7 @@ public class RaceTrackGui extends JFrame implements Runnable,
     }
 
     public static void main(String[] args) {
-
-        SwingUtilities.invokeLater(new RaceTrackGui());
+        SwingUtilities.invokeLater(new RaceTrackFrame());
     }
 
 

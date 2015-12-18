@@ -8,8 +8,9 @@ import net.burgin.racetrack.domain.Car
 import spock.lang.*
 
 class CarTest extends Specification{
+    @Shared
     def car = new Car();
-
+    def desiredJsonString = "{\"uuid\":\"bf51b8f0-7b11-4566-9680-57788c4a287e\",\"name\":\"Herbie\",\"competitionClass\":\"Tiger\"}"
     @Shared
     def mapper = new ObjectMapper();
 
@@ -18,19 +19,14 @@ class CarTest extends Specification{
         car.setCompetitionClass("Tiger")
     }
 
-    def "Json output is correct"(){
+    def "Json serialized/deserialized works"(){
         when:
-        def jsonString = mapper.writeValueAsString(car)
+        def carRead = mapper.readValue(mapper.writeValueAsString(car),Car.class)
         then:
-        jsonString.equals("{\"name\":\"Herbie\",\"competitionClass\":\"Tiger\"}")
-    }
+        carRead.equals(car);
+//        carRead.name == "TestName"
+//        carRead.competitionClass == "ClassName"
 
-    def "Json input is correct"(){
-        when:
-        def carRead = mapper.readValue("{\"name\":\"TestName\",\"competitionClass\":\"ClassName\"}",Car.class)
-        then:
-        carRead.name == "TestName"
-        carRead.competitionClass == "ClassName"
     }
 
     def "toString use name and class formatted correctly"(){

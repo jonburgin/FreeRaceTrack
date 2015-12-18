@@ -5,6 +5,7 @@ import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.RaceEvent;
 
 import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -57,6 +58,7 @@ public class NewRaceEventDialog extends JDialog {
         NewRaceEventDialog.this.setVisible(false);
         FreeRaceTrack.getInstance().addRaceEvent(raceEvent);
     }
+
     private class TextFieldEntryAction extends AbstractAction{
         public TextFieldEntryAction(){
             ResourceBundle resourceBundle = RaceTrackResourceBundle.getInstance();
@@ -65,7 +67,7 @@ public class NewRaceEventDialog extends JDialog {
 
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-                ok(actionEvent.paramString());
+                ok(((JTextComponent)actionEvent.getSource()).getText());
         }
     }
 

@@ -1,24 +1,19 @@
 package net.burgin.racetrack.gui;
 
 import net.burgin.racetrack.RaceTrackResourceBundle;
-import net.burgin.racetrack.domain.Car;
-import net.burgin.racetrack.domain.Runoff;
-import net.burgin.racetrack.domain.Race;
-import net.burgin.racetrack.domain.RaceEvent;
+import net.burgin.racetrack.domain.*;
 import net.burgin.racetrack.gui.actions.AddCarAction;
-import net.burgin.racetrack.gui.actions.AddOwnerAction;
+import net.burgin.racetrack.gui.actions.AddRacerAction;
 import net.burgin.racetrack.gui.actions.AddRaceAction;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by jonburgin on 12/4/15.
  */
 public class EventInternalFrame extends JInternalFrame {
     RaceEvent raceEvent;
-
     JList<Car> carsList = new JList<>();
     JLabel carNameLabel = new JLabel("Speedster");
     JLabel ownerNameLabel = new JLabel("Duke");
@@ -38,26 +33,33 @@ public class EventInternalFrame extends JInternalFrame {
 
     private void buildGui() {
         this.setLayout(new BorderLayout());
-        add(buildEventToolBar(), BorderLayout.NORTH);
         add(buildCenterPanel(), BorderLayout.CENTER);
         pack();
     }
 
     private Component buildCenterPanel() {
         JTabbedPane pane = new JTabbedPane();
+        pane.addTab(RaceTrackResourceBundle.getInstance().getString("participantTabTitle"), buildRacerTab());
         pane.addTab(RaceTrackResourceBundle.getInstance().getString("raceTabTitle"), buildRacePanel());
-        pane.addTab(RaceTrackResourceBundle.getInstance().getString("racerTabTitle"), buildOwnerTab());
-        pane.addTab(RaceTrackResourceBundle.getInstance().getString("carTabTitle"), buildCarTab());
         return pane;
     }
 
-    private Component buildCarTab() {
-        return new RaceEventListPanel(raceEvent, r->r.getRacers().stream().map(racer->racer.getCars()).flatMap(car->car.stream()).collect(Collectors.toList()));
+    private Component buildRacerTab() {
+        JPanel panel = new JPanel(new BorderLayout());
+        RacerEditPanel racerEditPanel = new RacerEditPanel();
+        EditableList<Racer> list
+                = new EditableList<>(new DefaultEditableListModel(()->raceEvent.getRacers()),
+                racerEditPanel);
+        JButton jButton = new JButton("New...");
+        jButton.addActionListener(actionEvent -> list.update(new Racer("New","Racer")));
+        JPanel panel2 = new JPanel(new BorderLayout());
+        panel2.add(jButton,BorderLayout.NORTH);
+        panel2.add(new JScrollPane(list), BorderLayout.CENTER);
+        panel.add(panel2, BorderLayout.CENTER);
+        panel.add(racerEditPanel, BorderLayout.EAST);
+        return panel;
     }
 
-    private Component buildOwnerTab() {
-        return new RaceEventListPanel(raceEvent, r->r.getRacers());
-    }
 
     private Component buildRacePanel() {
         JPanel panel = new JPanel(new GridBagLayout());
@@ -73,7 +75,6 @@ public class EventInternalFrame extends JInternalFrame {
         gc.gridx++;
         panel.add(buildCarDetailPanel(), gc);
         return panel;
-
     }
 
     private Component buildCarDetailPanel() {
@@ -105,7 +106,6 @@ public class EventInternalFrame extends JInternalFrame {
         gc.gridy++;
         gc.weightx = 1;
         gc.gridwidth=3;
-        //gc.gridwidth = GridBagConstraints.RELATIVE;
         gc.fill = GridBagConstraints.BOTH;
         panel.add(new JLabel(carImageIcon), gc);
         gc.fill = GridBagConstraints.NONE;
@@ -158,13 +158,5 @@ public class EventInternalFrame extends JInternalFrame {
         championship.addRace(new Race("Webelos I", "Webelos I"));
         championship.addRace(new Race("Webelos II", "Webelos II"));
         championship.addRace(new Race("Open", "Open"));
-    }
-
-    private Component buildEventToolBar() {
-        JToolBar toolBar = new JToolBar();
-        toolBar.add(new AddRaceAction());
-        toolBar.add(new AddOwnerAction());
-        toolBar.add(new AddCarAction());
-        return toolBar;
     }
 }

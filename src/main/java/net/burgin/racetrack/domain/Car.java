@@ -2,17 +2,23 @@ package net.burgin.racetrack.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import org.bridj.cpp.com.GUID;
 
 import java.awt.*;
+import java.util.UUID;
 
 /**
  * Created by jonburgin on 12/2/15.
  */
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(exclude="image")
 public class Car {
+    UUID uuid = UUID.randomUUID();
     String name;
-    @JsonIgnore
-    Racer racer;
     String competitionClass;
     @JsonIgnore
     Image image;
