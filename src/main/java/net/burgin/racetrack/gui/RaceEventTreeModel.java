@@ -33,20 +33,20 @@ public class RaceEventTreeModel implements TreeModel, RaceEventChangeListener{
     @Override
     public Object getChild(Object parent, int i) {
         if(parent == raceEvent){
-            return (i >= 0) && (i < raceEvent.getRaces().size())?raceEvent.getRaces().get(i):null;
+            return (i >= 0) && (i < raceEvent.getRaceTypes().size())?raceEvent.getRaceTypes().get(i):null;
         }
         if(!(parent instanceof Runoff))
             return null;
-        List<RaceType> childRaces = ((Runoff) parent).getRaces();
+        List<RaceType> childRaces = ((Runoff) parent).getRaceTypes();
         return (i >= 0) && (i < childRaces.size())? childRaces.get(i):null;
     }
 
     @Override
     public int getChildCount(Object parent) {
         if(parent == raceEvent)
-            return raceEvent.getRaces().size();
+            return raceEvent.getRaceTypes().size();
         if(parent instanceof Runoff)
-            return ((Runoff)parent).getRaces().size();
+            return ((Runoff)parent).getRaceTypes().size();
         return 0;
     }
 

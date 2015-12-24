@@ -10,7 +10,7 @@ import spock.lang.Specification
 class RunoffTest extends Specification {
     def runoff
     def mapper = new ObjectMapper()
-    def runoffJson = "{\"@CLASS\":\"net.burgin.racetrack.domain.Runoff\",\"name\":\"Championship\",\"races\":[{\"@CLASS\":\"net.burgin.racetrack.domain.Race\",\"name\":\"Race1\",\"competitionClasses\":[\"bar\",\"foo\"]},{\"@CLASS\":\"net.burgin.racetrack.domain.Race\",\"name\":\"Race2\",\"competitionClasses\":[\"foo\",\"box\"]}],\"take\":1}"
+    def runoffJson = "{\"@CLASS\":\"net.burgin.racetrack.domain.Runoff\",\"name\":\"Championship\",\"raceTypes\":[{\"@CLASS\":\"net.burgin.racetrack.domain.Race\",\"name\":\"Race1\",\"competitionClasses\":[\"bar\",\"foo\"]},{\"@CLASS\":\"net.burgin.racetrack.domain.Race\",\"name\":\"Race2\",\"competitionClasses\":[\"foo\",\"box\"]}],\"take\":1}"
 
     def setup(){
         runoff = new Runoff("Championship",1)

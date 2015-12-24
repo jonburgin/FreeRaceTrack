@@ -15,6 +15,7 @@ import java.util.List;
 @Data
 public class Heat {
     List<Competitor> competitors;
+    String name;
     long startTime;
     @JsonIgnore
     Image photofinish;
@@ -24,4 +25,5 @@ public class Heat {
         this();
         this.competitors = competitors;
     }
+
 }

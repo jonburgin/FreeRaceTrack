@@ -22,6 +22,7 @@ public class Car {
     String competitionClass;
     @JsonIgnore
     Image image;
+    private int id;
 
     public Car(){}
 
@@ -33,4 +34,5 @@ public class Car {
     public String toString(){
         return String.format("%s (%s)",name, competitionClass).toString();
     }
+
 }

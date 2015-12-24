@@ -3,6 +3,7 @@ package net.burgin.racetrack.gui;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.detection.*;
 import net.burgin.racetrack.gui.adapters.RaceTrackEditorMouseAdapter;
 
@@ -20,6 +21,7 @@ import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
  * Created by jonburgin on 11/15/15.
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class RacetrackWebcamPanel extends WebcamPanel implements HotSpotListener {
     Webcam webcam;
     boolean displayLanes ;

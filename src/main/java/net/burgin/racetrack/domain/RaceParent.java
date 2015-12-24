@@ -13,5 +13,5 @@ public interface RaceParent {
      */
     int indexOf(RaceType race);
 
-    List<RaceType> getRaces();
+    List<RaceType> getRaceTypes();
 }

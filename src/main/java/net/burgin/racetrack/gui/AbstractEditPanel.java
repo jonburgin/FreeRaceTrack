@@ -1,6 +1,7 @@
 package net.burgin.racetrack.gui;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -20,6 +21,22 @@ abstract public class AbstractEditPanel<T> extends JPanel implements Editor<T> {
         this.t = t;
         if(t == null)
             grabFocus();
+    }
+
+    @Override
+    public void setEnabled(boolean enable){
+        enableComponents(this, enable);
+    }
+    public void enableComponents(Container container, boolean enable) {
+        Component[] components = container.getComponents();
+        for (Component component : components) {
+            if(component instanceof Editor)
+                continue;
+            component.setEnabled(enable);
+            if (component instanceof Container) {
+                enableComponents((Container)component, enable);
+            }
+        }
     }
 
     @Override

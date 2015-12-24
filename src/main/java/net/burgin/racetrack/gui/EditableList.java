@@ -3,6 +3,7 @@ package net.burgin.racetrack.gui;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -60,7 +61,12 @@ public class EditableList<T> extends JList<T> implements EditUpdateListener<T>{
             @Override
             public void valueChanged(ListSelectionEvent listSelectionEvent) {
                 if(listSelectionEvent.getFirstIndex() != -1)
-                    SwingUtilities.invokeLater(()->editor.edit(getSelectedValue()));
+                    SwingUtilities.invokeLater(()->{
+                        editor.edit(getSelectedValue());
+                        editor.setEnabled(true);
+                    });
+                else
+                    SwingUtilities.invokeLater(()->editor.setEnabled(false));
             }
         });
     }
@@ -73,6 +79,7 @@ public class EditableList<T> extends JList<T> implements EditUpdateListener<T>{
 
     public void update(T t){
         editableListModel.update(t);
+        SwingUtilities.invokeLater(()->setSelectedValue(t,true));
     }
 
     public void remove(T t){

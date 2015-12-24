@@ -30,6 +30,7 @@ public class RacerEditPanel extends AbstractEditPanel<Racer>{
         createT();
         defaultEditableListModel.setSupplier(()->t.getCars());
         buildGui();
+        setEnabled(false);
     }
 
     void populateFields(Racer racer){

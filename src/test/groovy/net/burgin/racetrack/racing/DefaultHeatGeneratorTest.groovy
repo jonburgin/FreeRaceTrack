@@ -3,7 +3,10 @@ package net.burgin.racetrack.racing
 import net.burgin.racetrack.domain.Car
 import net.burgin.racetrack.domain.Competitor
 import net.burgin.racetrack.domain.Heat
+import net.burgin.racetrack.domain.Race
+import net.burgin.racetrack.domain.RaceEvent
 import net.burgin.racetrack.domain.RaceType
+import net.burgin.racetrack.domain.Runoff
 import net.burgin.racetrack.domain.Track
 import spock.lang.Specification
 
@@ -19,13 +22,14 @@ class DefaultHeatGeneratorTest extends Specification {
     def tigerCar3 = new Car("T3", TIGER_CLASS)
     def tigerCar4 = new Car("T4", TIGER_CLASS)
     def wolfCar1 = new Car("W1", WOLF_CLASS)
+    def wolfCar2 = new Car("W1", WOLF_CLASS)
 
     def "#cars < #lanes, doesn't use all lanes"(){
         def race = Mock(RaceType)
         def cars = Arrays.asList(tigerCar1, wolfCar1, tigerCar2)
         def track = Mock(Track)
         when:
-        List<Heat> heats = heatGenerator.generate(race, cars, track);
+        List<Heat> heats = heatGenerator.generateHeat(race, cars, track);
         then:
         1*track.getLaneCount() >> 5
         1*race.getCompetitionClasses() >> Arrays.asList(TIGER_CLASS)
@@ -41,7 +45,7 @@ class DefaultHeatGeneratorTest extends Specification {
         def cars = Arrays.asList(tigerCar1, wolfCar1, tigerCar2, tigerCar3, tigerCar4)
         def track = Mock(Track)
         when:
-        List<Heat> heats = heatGenerator.generate(race, cars, track);
+        List<Heat> heats = heatGenerator.generateHeat(race, cars, track);
         then:
         1*track.getLaneCount() >> 3
         1*race.getCompetitionClasses() >> Arrays.asList(TIGER_CLASS)
@@ -60,5 +64,43 @@ class DefaultHeatGeneratorTest extends Specification {
         List<Car> list = new ArrayList<>()
         params.each {c -> list.add(new Competitor(c))}
         return new Heat(list);
+    }
+
+    def "generateRaceHeats generates heats for all races"(){
+        setup:
+        def raceEvent = Mock(RaceEvent)
+        def race1 = Mock(Race)
+        race1.getCompetitionClasses() >> [TIGER_CLASS]
+        def race2 = Mock(Race)
+        race2.getCompetitionClasses() >> [WOLF_CLASS]
+        def runoff = Mock(Runoff)
+        runoff.getRaceTypes() >> [race1, race2]
+        def track = Mock(Track)
+        track.getLaneCount()>>3
+        raceEvent.getTrack()>>track
+        raceEvent.getRaceTypes()>>[runoff]
+        raceEvent.getCars()>>[tigerCar1,wolfCar1,tigerCar2,tigerCar3, tigerCar4, wolfCar2]
+        when:
+        def heats = heatGenerator.generateRaceHeats(raceEvent)
+        then:
+        heats.size == 6
+    }
+
+    def "getLeafRaces can handle multiple levels of nesting"(){
+        setup:
+        def race1 = Mock(Race)
+        def race2 = Mock(Race)
+        def race3 = Mock(Race)
+        def runoffParent = Mock(Runoff)
+        def runoffGrandParent = Mock(Runoff)
+        runoffGrandParent.getRaceTypes() >> [race1, runoffParent]
+        runoffParent.getRaceTypes() >> [race2, race3]
+        when:
+        def races = heatGenerator.getLeafRaces(runoffGrandParent)
+        then:
+        races.size ==3
+        races.contains(race1)
+        races.contains(race2)
+        races.contains(race3)
     }
 }

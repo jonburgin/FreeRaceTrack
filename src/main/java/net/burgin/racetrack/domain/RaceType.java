@@ -11,5 +11,6 @@ import java.util.Set;
         include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
         property = "@CLASS")
 public interface RaceType extends RaceEventChangeNotifier{
+    String getName();
     Set<String> getCompetitionClasses();
 }

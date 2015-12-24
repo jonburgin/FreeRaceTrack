@@ -13,7 +13,7 @@ abstract public class AbstractRaceEventChangeNotifier implements RaceEventChange
     public void addRaceEventChangeListener(RaceEventChangeListener raceEventChangeListener){
         raceEventChangeListeners.add(raceEventChangeListener);
         if(this instanceof RaceParent){
-            ((RaceParent)this).getRaces().stream()
+            ((RaceParent)this).getRaceTypes().stream()
                     .forEach(race -> race.addRaceEventChangeListener(raceEventChangeListener));
         }
     }
@@ -21,7 +21,7 @@ abstract public class AbstractRaceEventChangeNotifier implements RaceEventChange
     public void removeRaceEventChangeListener(RaceEventChangeListener raceEventChangeListener){
         raceEventChangeListeners.remove(raceEventChangeListener);
         if(this instanceof RaceParent) {
-            ((RaceParent) this).getRaces().stream()
+            ((RaceParent) this).getRaceTypes().stream()
                     .forEach(race -> race.removeRaceEventChangeListener(raceEventChangeListener));
         }
     }

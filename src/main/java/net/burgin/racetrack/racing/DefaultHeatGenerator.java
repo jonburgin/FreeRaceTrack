@@ -2,10 +2,9 @@ package net.burgin.racetrack.racing;
 
 import net.burgin.racetrack.domain.*;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -13,8 +12,38 @@ import java.util.stream.IntStream;
  * Created by jonburgin on 12/11/15.
  */
 public class DefaultHeatGenerator implements HeatGenerator {
+
     @Override
-    public List<Heat> generate(RaceType race, List<Car> cars, Track track) {
+    public List<Heat> generateRaceHeats(RaceEvent raceEvent){
+        List<Race> races = getLeafRaces(raceEvent);
+        List<Car> cars = raceEvent.getCars();
+        Track track = raceEvent.getTrack();
+        return races.stream()
+                .map(race -> generateHeats(race, cars, track))
+                .flatMap(l->l.stream())
+                .collect(Collectors.toList());
+    }
+
+    //TODO generateRunoffHeats(raceEvent, Results list)
+
+    List<Race> getLeafRaces(RaceParent raceParent){
+        return  raceParent.getRaceTypes().stream()
+                .map(raceType -> raceType instanceof Race? Arrays.asList((Race)raceType): getLeafRaces((RaceParent)raceType))
+                .flatMap(raceList->raceList.stream())
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<Heat> generateHeat(RaceType race, List<Car> cars, Track track) {
+        if(race instanceof Race){
+            return generateHeats((Race)race,cars, track);
+        }else{
+            return null;//todo generateHeat from winners...need to get a way to connect raceTypes to winners
+        }
+    }
+
+    List<Heat> generateHeats(Race race, List<Car> cars, Track track){
         int numberOfLanes = track.getLaneCount();
         Set<String> competionClasses = race.getCompetitionClasses();
         List<Car> validCars = cars.stream()

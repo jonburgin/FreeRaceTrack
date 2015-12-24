@@ -2,6 +2,7 @@ package net.burgin.racetrack.detection;
 
 import com.github.sarxos.webcam.WebcamEvent;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.gui.adapters.WebcamAdapter;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.Map;
  * Created by jonburgin on 11/15/15.
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class OneTimeHotSpotDetector extends WebcamAdapter implements HotSpotDetector {
 
     int sensitivity = 50;

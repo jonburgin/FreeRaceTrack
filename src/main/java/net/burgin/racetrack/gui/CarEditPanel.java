@@ -1,6 +1,7 @@
 package net.burgin.racetrack.gui;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.Car;
 import javax.swing.*;
@@ -14,6 +15,7 @@ import java.awt.event.ItemListener;
  * Created by jonburgin on 12/16/15.
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class CarEditPanel extends AbstractEditPanel<Car>{
     private JTextField nameTextField;
     JComboBox<String> raceClassComboBox;
@@ -27,6 +29,7 @@ public class CarEditPanel extends AbstractEditPanel<Car>{
         createT();
         loadResources();
         buildGui();
+        setEnabled(false);
     }
 
     void buildGui(){

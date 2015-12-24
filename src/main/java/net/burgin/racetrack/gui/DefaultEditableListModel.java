@@ -1,6 +1,7 @@
 package net.burgin.racetrack.gui;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.domain.Car;
 import net.burgin.racetrack.domain.RaceEvent;
 import net.burgin.racetrack.domain.Racer;
@@ -13,6 +14,7 @@ import java.util.function.Supplier;
  * Created by jonburgin on 12/15/15.
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class DefaultEditableListModel<T> extends AbstractListModel<T> implements EditableListModel<T>{
     Supplier<List<T>> supplier;
 
