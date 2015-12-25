@@ -5,6 +5,8 @@ import lombok.Data;
 
 import java.awt.*;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Created by jonburgin on 12/2/15.
@@ -15,15 +17,19 @@ import java.util.List;
 @Data
 public class Heat {
     List<Competitor> competitors;
-    String name;
     long startTime;
+    UUID raceId;
     @JsonIgnore
     Image photofinish;
 
-    public Heat(){}
-    public Heat(List<Competitor> competitors){
-        this();
+    public Heat( UUID raceId,List<Competitor> competitors){
+        this.raceId = raceId;
         this.competitors = competitors;
     }
 
+    public String toString(){
+        return competitors.stream()
+                .map(competitor -> competitor.getCar().getName())
+                .collect(Collectors.joining("', '","['","']"));
+    }
 }

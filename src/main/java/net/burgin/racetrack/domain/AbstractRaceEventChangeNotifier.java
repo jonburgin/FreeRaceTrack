@@ -13,7 +13,7 @@ abstract public class AbstractRaceEventChangeNotifier implements RaceEventChange
     public void addRaceEventChangeListener(RaceEventChangeListener raceEventChangeListener){
         raceEventChangeListeners.add(raceEventChangeListener);
         if(this instanceof RaceParent){
-            ((RaceParent)this).getRaceTypes().stream()
+            ((RaceParent)this).getRaces().stream()
                     .forEach(race -> race.addRaceEventChangeListener(raceEventChangeListener));
         }
     }
@@ -21,7 +21,7 @@ abstract public class AbstractRaceEventChangeNotifier implements RaceEventChange
     public void removeRaceEventChangeListener(RaceEventChangeListener raceEventChangeListener){
         raceEventChangeListeners.remove(raceEventChangeListener);
         if(this instanceof RaceParent) {
-            ((RaceParent) this).getRaceTypes().stream()
+            ((RaceParent) this).getRaces().stream()
                     .forEach(race -> race.removeRaceEventChangeListener(raceEventChangeListener));
         }
     }
@@ -31,7 +31,7 @@ abstract public class AbstractRaceEventChangeNotifier implements RaceEventChange
      * @param parent the raceParent that had a race added to it
      * @param index the index that the race was added at
      */
-    public void raceAdded(Object parent, RaceType child, int index) {
+    public void raceAdded(Object parent, Race child, int index) {
         raceEventChangeListeners.stream()
                 .forEach(l->l.raceAdded(parent,child,index));
     }
@@ -41,7 +41,7 @@ abstract public class AbstractRaceEventChangeNotifier implements RaceEventChange
      * @param parent the raceParent that had the race removed
      * @param index the previous index of the removed object
      */
-    public void raceRemoved(Object parent, RaceType child, int index) {
+    public void raceRemoved(Object parent, Race child, int index) {
         raceEventChangeListeners.stream()
                 .forEach(l->l.raceRemoved(parent,child,index));
     }
@@ -50,7 +50,7 @@ abstract public class AbstractRaceEventChangeNotifier implements RaceEventChange
      * used to notify listeners that a race has changed
      * @param race
      */
-    public void raceChanged(RaceType race) {
+    public void raceChanged(Race race) {
         raceEventChangeListeners.stream()
                 .forEach(l->l.raceChanged(race));
     }

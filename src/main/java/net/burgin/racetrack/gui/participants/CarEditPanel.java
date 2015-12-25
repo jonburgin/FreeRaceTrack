@@ -1,22 +1,21 @@
-package net.burgin.racetrack.gui;
+package net.burgin.racetrack.gui.participants;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.Car;
+import net.burgin.racetrack.gui.editablelist.AbstractEditPanel;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 /**
  * Created by jonburgin on 12/16/15.
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class CarEditPanel extends AbstractEditPanel<Car>{
+public class CarEditPanel extends AbstractEditPanel<Car> {
     private JTextField nameTextField;
     JComboBox<String> raceClassComboBox;
     String photoTitle;
@@ -95,18 +94,18 @@ public class CarEditPanel extends AbstractEditPanel<Car>{
     }
 
     @Override
-    void createT(){
+    protected void createT(){
         t = new Car();
     }
 
     @Override
-    void populateT() {
+    protected void populateT() {
         t.setName(nameTextField.getText());
         t.setCompetitionClass(raceClassComboBox.getSelectedItem().toString());
     }
 
     @Override
-    void populateFields(Car car){
+    protected void populateFields(Car car){
         nameTextField.setText(car.getName());
         String competitionClass = car.getCompetitionClass();
         if(competitionClass !=null && competitionClass.length()>0)

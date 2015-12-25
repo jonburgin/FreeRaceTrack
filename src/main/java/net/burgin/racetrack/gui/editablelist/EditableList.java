@@ -1,9 +1,8 @@
-package net.burgin.racetrack.gui;
+package net.burgin.racetrack.gui.editablelist;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -12,7 +11,7 @@ import java.awt.event.MouseEvent;
 /**
  * Created by jonburgin on 12/16/15.
  */
-public class EditableList<T> extends JList<T> implements EditUpdateListener<T>{
+public class EditableList<T> extends JList<T> implements EditUpdateListener<T> {
     private final Editor<T> editor;
     EditableListModel<T> editableListModel;
     public EditableList(EditableListModel<T> model, Editor<T> editor){

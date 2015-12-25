@@ -11,7 +11,7 @@ public interface RaceParent {
      * @param race that you want to know index of
      * @return -1 if the race is not a child
      */
-    int indexOf(RaceType race);
+    int indexOf(Race race);
 
-    List<RaceType> getRaceTypes();
+    List<Race> getRaces();
 }

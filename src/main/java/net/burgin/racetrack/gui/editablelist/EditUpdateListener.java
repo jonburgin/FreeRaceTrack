@@ -1,4 +1,4 @@
-package net.burgin.racetrack.gui;
+package net.burgin.racetrack.gui.editablelist;
 
 /**
  * Created by jonburgin on 12/16/15.

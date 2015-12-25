@@ -1,4 +1,4 @@
-package net.burgin.racetrack.gui;
+package net.burgin.racetrack.gui.editablelist;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,9 +13,9 @@ import java.util.ArrayList;
  */
 abstract public class AbstractEditPanel<T> extends JPanel implements Editor<T> {
 
-    boolean dirty;
-    T t;
-    java.util.List<EditUpdateListener> updateListeners = new ArrayList<>();
+    protected boolean dirty;
+    protected T t;
+    protected java.util.List<EditUpdateListener> updateListeners = new ArrayList<>();
 
     public void Edit(T t){
         this.t = t;
@@ -49,9 +49,9 @@ abstract public class AbstractEditPanel<T> extends JPanel implements Editor<T> {
         updateListeners.remove(listener);
     }
 
-    abstract void populateT();
-    abstract void populateFields(T t);
-    abstract void createT();
+    protected abstract void populateT();
+    protected abstract void populateFields(T t);
+    protected abstract void createT();
 
     public void edit(T t) {
         notifyEditUpdateListeners();
@@ -63,7 +63,7 @@ abstract public class AbstractEditPanel<T> extends JPanel implements Editor<T> {
         populateFields(this.t);
     }
 
-    void notifyEditUpdateListeners(){
+    protected void notifyEditUpdateListeners(){
         if(dirty == false)
             return;
         dirty = false;
@@ -72,8 +72,7 @@ abstract public class AbstractEditPanel<T> extends JPanel implements Editor<T> {
                 .forEach(l->l.update(t));
     }
 
-
-    class NotifierListener implements FocusListener, ActionListener {
+    public class NotifierListener implements FocusListener, ActionListener {
         @Override
         public void focusGained(FocusEvent focusEvent) {
             dirty = true;

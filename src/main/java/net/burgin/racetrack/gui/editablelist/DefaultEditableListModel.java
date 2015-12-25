@@ -1,10 +1,7 @@
-package net.burgin.racetrack.gui;
+package net.burgin.racetrack.gui.editablelist;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import net.burgin.racetrack.domain.Car;
-import net.burgin.racetrack.domain.RaceEvent;
-import net.burgin.racetrack.domain.Racer;
 
 import javax.swing.*;
 import java.util.List;
@@ -15,7 +12,7 @@ import java.util.function.Supplier;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class DefaultEditableListModel<T> extends AbstractListModel<T> implements EditableListModel<T>{
+public class DefaultEditableListModel<T> extends AbstractListModel<T> implements EditableListModel<T> {
     Supplier<List<T>> supplier;
 
     public DefaultEditableListModel(Supplier<List<T>> supplier){
@@ -59,6 +56,8 @@ public class DefaultEditableListModel<T> extends AbstractListModel<T> implements
     @Override
     public T getElementAt(int i) {
         List<T> tees = supplier.get();
+        if(i < 0 || i > tees.size())
+            return null;
         return tees.get(i);
     }
 

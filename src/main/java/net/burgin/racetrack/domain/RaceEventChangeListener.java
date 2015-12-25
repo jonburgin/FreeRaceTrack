@@ -5,9 +5,9 @@ package net.burgin.racetrack.domain;
  */
 public interface RaceEventChangeListener {
 
-    void raceAdded(Object parent, RaceType child, int index);
+    void raceAdded(Object parent, Race child, int index);
 
-    void raceRemoved(Object parent, RaceType child, int index);
+    void raceRemoved(Object parent, Race child, int index);
 
-    void raceChanged(RaceType race);
+    void raceChanged(Race race);
 }

@@ -2,9 +2,10 @@ package net.burgin.racetrack.gui;
 
 import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.*;
-import net.burgin.racetrack.gui.actions.AddCarAction;
-import net.burgin.racetrack.gui.actions.AddRacerAction;
-import net.burgin.racetrack.gui.actions.AddRaceAction;
+import net.burgin.racetrack.gui.editablelist.DefaultEditableListModel;
+import net.burgin.racetrack.gui.editablelist.EditableList;
+import net.burgin.racetrack.gui.heats.HeatPanel;
+import net.burgin.racetrack.gui.participants.RacerEditPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,7 +42,17 @@ public class EventInternalFrame extends JInternalFrame {
         JTabbedPane pane = new JTabbedPane();
         pane.addTab(RaceTrackResourceBundle.getInstance().getString("participantTabTitle"), buildRacerTab());
         pane.addTab(RaceTrackResourceBundle.getInstance().getString("raceTabTitle"), buildRacePanel());
+        pane.addTab(RaceTrackResourceBundle.getInstance().getString("heatTabTitle"), buildHeatPanel());
+        pane.addTab(RaceTrackResourceBundle.getInstance().getString("resultTabTitle"), buildResultsPanel());
         return pane;
+    }
+
+    private Component buildHeatPanel() {
+        return new HeatPanel(raceEvent);
+    }
+
+    private Component buildResultsPanel() {
+        return new JPanel();
     }
 
     private Component buildRacerTab() {
@@ -151,12 +162,12 @@ public class EventInternalFrame extends JInternalFrame {
     }
 
     private void buildDefaultTemplate() {
-        Runoff championship = new Runoff("Grand Championship", 2);
+        RunoffRace championship = new RunoffRace("Grand Championship", 2);
         raceEvent.addRace(championship);
-        championship.addRace(new Race("Tiger's and Wolves", "Tigers", "Wolves"));
-        championship.addRace(new Race("Bears", "Bears"));
-        championship.addRace(new Race("Webelos I", "Webelos I"));
-        championship.addRace(new Race("Webelos II", "Webelos II"));
-        championship.addRace(new Race("Open", "Open"));
+        championship.addRace(new SimpleRace("Tiger's and Wolves", "Tiger", "Wolf"));
+        championship.addRace(new SimpleRace("Bears", "Bear"));
+        championship.addRace(new SimpleRace("Webelos I", "Web I"));
+        championship.addRace(new SimpleRace("Webelos II", "Web II"));
+        championship.addRace(new SimpleRace("Open", "Open"));
     }
 }

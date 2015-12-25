@@ -1,18 +1,21 @@
-package net.burgin.racetrack.gui;
+package net.burgin.racetrack.gui.participants;
 
 import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.Car;
 import net.burgin.racetrack.domain.Racer;
+import net.burgin.racetrack.gui.editablelist.AbstractEditPanel;
+import net.burgin.racetrack.gui.editablelist.DefaultEditableListModel;
+import net.burgin.racetrack.gui.editablelist.EditableList;
+import net.burgin.racetrack.gui.participants.CarEditPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
 /**
  * Created by jonburgin on 12/14/15.
  */
-public class RacerEditPanel extends AbstractEditPanel<Racer>{
+public class RacerEditPanel extends AbstractEditPanel<Racer> {
     String firstNameLabel;
     String lastNameLabel;
     String title;
@@ -33,7 +36,7 @@ public class RacerEditPanel extends AbstractEditPanel<Racer>{
         setEnabled(false);
     }
 
-    void populateFields(Racer racer){
+    protected void populateFields(Racer racer){
         firstNameField.setText(racer.getFirstName());
         lastNameField.setText(racer.getLastName());
         defaultEditableListModel.setSupplier(()->racer.getCars());
@@ -132,11 +135,11 @@ public class RacerEditPanel extends AbstractEditPanel<Racer>{
         nameTitle = RaceTrackResourceBundle.getInstance().getString("name");
     }
 
-    void createT(){
+    protected void createT(){
         t = new Racer();
 
     }
-    void populateT() {
+    protected void populateT() {
         t.setFirstName(firstNameField.getText());
         t.setLastName(lastNameField.getText());
     }

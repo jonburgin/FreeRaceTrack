@@ -12,21 +12,22 @@ import java.util.stream.Collectors;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Runoff extends AbstractRaceParent {
-    int take = 1;//number of winners to move up from child raceTypes.
+public class RunoffRace extends AbstractRaceParent {
+    int takeNumber = 1;//number of winners to move up from child raceTypes.
+    boolean byClassification;//takeNumber of winners per classification, instead of the entire field of competitors
 
-    public Runoff(){
+    public RunoffRace(){
         super();
     }
-    public Runoff(String name, int take){
+    public RunoffRace(String name, int takeNumber){
         this();
         this.name = name;
-        this.take = take;
+        this.takeNumber = takeNumber;
     }
 
     @JsonIgnore
     public Set<String> getCompetitionClasses(){
-        return raceTypes.stream()
+        return races.stream()
                 .map(race -> race.getCompetitionClasses())
                 .flatMap(l->l.stream())
                 .collect(Collectors.toSet());

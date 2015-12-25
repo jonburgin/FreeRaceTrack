@@ -2,9 +2,7 @@ package net.burgin.racetrack.racing;
 
 import net.burgin.racetrack.domain.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -12,57 +10,77 @@ import java.util.stream.IntStream;
  * Created by jonburgin on 12/11/15.
  */
 public class DefaultHeatGenerator implements HeatGenerator {
+    RaceEvent raceEvent;
+
+    public DefaultHeatGenerator(RaceEvent raceEvent){
+        this.raceEvent = raceEvent;
+    }
 
     @Override
-    public List<Heat> generateRaceHeats(RaceEvent raceEvent){
-        List<Race> races = getLeafRaces(raceEvent);
-        List<Car> cars = raceEvent.getCars();
-        Track track = raceEvent.getTrack();
-        return races.stream()
-                .map(race -> generateHeats(race, cars, track))
+    public List<Heat> generateAllSimpleRaceHeats(){
+        return getLeafRaces(raceEvent).stream()
+                .map(race -> generateHeatsForSimpleRace(race))
                 .flatMap(l->l.stream())
                 .collect(Collectors.toList());
     }
 
-    //TODO generateRunoffHeats(raceEvent, Results list)
+    @Override
+    public List<Heat> generateHeatsForRunoffRace(RunoffRace runoff){
+        List<DefaultRaceResult> results = runoff.getRaces().stream()
+                .map(racetype ->raceEvent.getResults().get(racetype.getId()))
+                .collect(Collectors.toList());
+        List<Car> cars = results.stream()
+                .map(result -> getCompetitorsFromSubRace(runoff, result))
+                .flatMap(competitorsList -> competitorsList.stream())
+                .map(competitor -> competitor.getCar())
+                .collect(Collectors.toList());
+        return generateHeats(runoff.getId(), cars,raceEvent.getTrack().getLaneCount());
+    }
 
-    List<Race> getLeafRaces(RaceParent raceParent){
-        return  raceParent.getRaceTypes().stream()
-                .map(raceType -> raceType instanceof Race? Arrays.asList((Race)raceType): getLeafRaces((RaceParent)raceType))
+    List<Competitor> getCompetitorsFromSubRace(RunoffRace runoff, RaceResult raceResult){
+        long take = runoff.getTakeNumber();
+        Set<String> raceClassifications = runoff.isByClassification()?
+                raceResult.getRaceClassifications():new HashSet(Arrays.asList(RaceResult.ALL_COMPETITION_CLASSES));
+        return raceClassifications.stream()
+                .map(c -> raceResult.getResults().get(c))
+                .limit(take)
+                .flatMap(lists->lists.stream())
+                .collect(Collectors.toList());
+    }
+
+    List<SimpleRace> getLeafRaces(RaceParent raceParent){
+        return  raceParent.getRaces().stream()
+                .map(raceType -> raceType instanceof SimpleRace ? Arrays.asList((SimpleRace)raceType): getLeafRaces((RaceParent)raceType))
                 .flatMap(raceList->raceList.stream())
                 .collect(Collectors.toList());
     }
 
 
     @Override
-    public List<Heat> generateHeat(RaceType race, List<Car> cars, Track track) {
-        if(race instanceof Race){
-            return generateHeats((Race)race,cars, track);
-        }else{
-            return null;//todo generateHeat from winners...need to get a way to connect raceTypes to winners
-        }
-    }
-
-    List<Heat> generateHeats(Race race, List<Car> cars, Track track){
-        int numberOfLanes = track.getLaneCount();
-        Set<String> competionClasses = race.getCompetitionClasses();
+    public List<Heat> generateHeatsForSimpleRace(SimpleRace simpleRace){
+        List<Car> cars = raceEvent.getCars();
+        Track track = raceEvent.getTrack();
+        Set<String> competionClasses = simpleRace.getCompetitionClasses();
         List<Car> validCars = cars.stream()
                 .filter(car -> competionClasses.contains(car.getCompetitionClass()))
                 .collect(Collectors.toList());
-        List<Heat> heats = IntStream.range(0, validCars.size())
-                .mapToObj(i -> {
-                    //a list of competitors for available lanes
-                    List<Competitor> competitors = createCompetitors(validCars,numberOfLanes);
-                    //shift the cars
-                    validCars.add(validCars.remove(0));
-                    return competitors;
-                })
-                .map(list -> new Heat(list))
-                .collect(Collectors.toList());
-        return heats;
+        return generateHeats(simpleRace.getId(), validCars,track.getLaneCount());
     }
 
-    private List<Competitor> createCompetitors(List<Car> cars, int limit){
+    protected List<Heat> generateHeats(UUID id, List<Car> cars, int numberOfLanes){
+        List<Heat> heats = IntStream.range(0, cars.size())
+                .mapToObj(i -> {
+                    List<Competitor> competitors = createNumberCompetitorsFromCarList(cars,numberOfLanes);
+                    cars.add(cars.remove(0));//rotate the cars
+                    return competitors;
+                })
+                .map(list -> new Heat(id,list))
+                .collect(Collectors.toList());
+        return heats;
+
+    }
+
+    protected List<Competitor> createNumberCompetitorsFromCarList(List<Car> cars, int limit){
         return cars.stream()
                 .limit(limit)
                 .map(car -> new Competitor(car))

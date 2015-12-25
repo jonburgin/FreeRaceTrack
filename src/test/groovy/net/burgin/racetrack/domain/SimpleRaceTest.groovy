@@ -7,8 +7,8 @@ import spock.lang.Specification
 /**
  * Created by jonburgin on 12/11/15.
  */
-class RaceTest extends Specification {
-    def race = new Race()
+class SimpleRaceTest extends Specification {
+    def race = new SimpleRace()
     def mapper = new ObjectMapper()
     def raceJson = "{\"@CLASS\":\"net.burgin.racetrack.domain.Race\",\"name\":\"Tiger Race\",\"competitionClasses\":[\"Tiger\",\"Wolf\",\"Cow\"]}"
 
@@ -18,7 +18,7 @@ class RaceTest extends Specification {
     }
 
     def "multi parameter constructor initializes variable correctly" (){
-        def race2 = new Race("name2", "one", "two")
+        def race2 = new SimpleRace("name2", "one", "two")
         expect:
         race2.name.equals("name2")
         race2.competitionClasses.size() == 2
@@ -49,7 +49,7 @@ class RaceTest extends Specification {
 
     def "Json input is correct"(){
         when:
-        def raceRead = mapper.readValue(raceJson, RaceType.class)
+        def raceRead = mapper.readValue(raceJson, Race.class)
         then:
         raceRead.name == "Tiger Race"
         raceRead.competitionClasses.size() == 3

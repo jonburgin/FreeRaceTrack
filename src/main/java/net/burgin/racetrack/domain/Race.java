@@ -1,36 +1,18 @@
 package net.burgin.racetrack.domain;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 /**
- * Created by jonburgin on 12/4/15.
+ * Created by jonburgin on 12/11/15.
  */
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class Race extends AbstractRace{
-
-    Set<String> competitionClasses = new HashSet<>();
-
-    public Race(){}
-
-    public Race(String name, Collection<String> competitionClasses){
-        this();
-        this.name = name;
-        this.competitionClasses.addAll(competitionClasses);
-    }
-
-    public Race(String name, String... competitionClasses){
-        this(name, Arrays.asList(competitionClasses));
-    }
-
-    public String toString(){
-        return name;
-    }
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+        property = "@CLASS")
+public interface Race extends RaceEventChangeNotifier{
+    String getName();
+    UUID getId();
+    Set<String> getCompetitionClasses();
 }

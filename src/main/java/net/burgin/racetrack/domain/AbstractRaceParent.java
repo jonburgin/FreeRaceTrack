@@ -12,23 +12,23 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper=true)
 abstract public class AbstractRaceParent extends AbstractRace implements RaceParent {
-    List<RaceType> raceTypes = new ArrayList<>();
+    List<Race> races = new ArrayList<>();
 
-    public void addRace(RaceType race){
-        raceTypes.add(race);
+    public void addRace(Race race){
+        races.add(race);
         raceEventChangeListeners.stream().forEach(l->race.addRaceEventChangeListener(l));
-        raceAdded(this, race, raceTypes.indexOf(race));
+        raceAdded(this, race, races.indexOf(race));
     }
 
-    public void removeRace(RaceType race){
-        int index = raceTypes.indexOf(race);
-        raceTypes.remove(index);
+    public void removeRace(Race race){
+        int index = races.indexOf(race);
+        races.remove(index);
         raceRemoved(this, race, index);
     }
 
     @Override
-    public int indexOf(RaceType race) {
-        return raceTypes.indexOf(race);
+    public int indexOf(Race race) {
+        return races.indexOf(race);
     }
 
 }

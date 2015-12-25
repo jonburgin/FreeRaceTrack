@@ -12,18 +12,18 @@ public interface RaceEventChangeNotifier {
      * @param parent the raceParent that had a race added to it
      * @param index the index that the race was added at
      */
-    void raceAdded(Object parent, RaceType child, int index);
+    void raceAdded(Object parent, Race child, int index);
 
     /**
      * used to notify listeners that a race was removed
      * @param parent the raceParent that had the race removed
      * @param index the previous index of the removed object
      */
-    void raceRemoved(Object parent, RaceType child, int index);
+    void raceRemoved(Object parent, Race child, int index);
 
     /**
      * used to notify listeners that a race has changed
      * @param race
      */
-    void raceChanged(RaceType race);
+    void raceChanged(Race race);
 }

@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 public class RaceEvent extends AbstractRaceParent {
     Set<String> competitionClasses = new HashSet<>();
     List<Racer> racers = new ArrayList<>();
-    Map<RaceType, Heat> heats = new HashMap<>();
-    Map<RaceType, RaceResult> results = new HashMap<>();
-    Track track;
+    Map<UUID, List<Heat>> heats = new HashMap<>();
+    Map<UUID, DefaultRaceResult> results = new HashMap<>();
+    Track track = new DefaultTrack(6);//todo remove this
     @JsonIgnore
-    HeatGenerator heatGenerator = new DefaultHeatGenerator();
+    HeatGenerator heatGenerator = new DefaultHeatGenerator(this);
 
     public void assignCarIds(){
         Optional<Car> carWithId = findCarById(findMaxCarId());
