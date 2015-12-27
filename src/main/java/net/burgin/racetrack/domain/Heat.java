@@ -17,19 +17,22 @@ import java.util.stream.Collectors;
 @Data
 public class Heat {
     List<Competitor> competitors;
+    UUID uuid = UUID.randomUUID();//for saving the photofinish
+    String name;
     long startTime;
-    UUID raceId;
     @JsonIgnore
-    Image photofinish;
+    List<Image> photofinish;
 
-    public Heat( UUID raceId,List<Competitor> competitors){
-        this.raceId = raceId;
-        this.competitors = competitors;
+    public Heat(Race race, List<Car> cars){
+        name = race.getName();
+        competitors = cars.stream()
+            .map(car -> new Competitor(car))
+            .collect(Collectors.toList());
     }
 
     public String toString(){
         return competitors.stream()
                 .map(competitor -> competitor.getCar().getName())
-                .collect(Collectors.joining("', '","['","']"));
+                .collect(Collectors.joining("', '", name + " ['", "']"));
     }
 }

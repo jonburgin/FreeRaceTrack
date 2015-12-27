@@ -1,5 +1,8 @@
 package net.burgin.racetrack.gui.editablelist;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -11,17 +14,13 @@ import java.util.ArrayList;
 /**
  * Created by jonburgin on 12/16/15.
  */
+@Data
+@EqualsAndHashCode(callSuper = false)
 abstract public class AbstractEditPanel<T> extends JPanel implements Editor<T> {
 
     protected boolean dirty;
     protected T t;
     protected java.util.List<EditUpdateListener> updateListeners = new ArrayList<>();
-
-    public void Edit(T t){
-        this.t = t;
-        if(t == null)
-            grabFocus();
-    }
 
     @Override
     public void setEnabled(boolean enable){
@@ -53,6 +52,7 @@ abstract public class AbstractEditPanel<T> extends JPanel implements Editor<T> {
     protected abstract void populateFields(T t);
     protected abstract void createT();
 
+    @Override
     public void edit(T t) {
         notifyEditUpdateListeners();
         this.t = t;

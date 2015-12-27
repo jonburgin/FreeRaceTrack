@@ -25,9 +25,6 @@ public class GenerateRaceHeatsAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-        java.util.List<Heat> heats = model.getRaceEvent().getHeatGenerator().generateAllSimpleRaceHeats();
-        Map<UUID, List<Heat>> mappedHeats = heats.stream()
-                .collect(Collectors.groupingBy(Heat::getRaceId));
-        model.putAll(mappedHeats);//to do probably shouldn't overwrite here, but add only.
+        model.generateHeats();
     }
 }

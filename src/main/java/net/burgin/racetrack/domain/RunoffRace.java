@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,7 +15,6 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 public class RunoffRace extends AbstractRaceParent {
     int takeNumber = 1;//number of winners to move up from child raceTypes.
-    boolean byClassification;//takeNumber of winners per classification, instead of the entire field of competitors
 
     public RunoffRace(){
         super();
@@ -28,13 +28,18 @@ public class RunoffRace extends AbstractRaceParent {
     @JsonIgnore
     public Set<String> getCompetitionClasses(){
         return races.stream()
-                .map(race -> race.getCompetitionClasses())
-                .flatMap(l->l.stream())
+                .map(Race::getCompetitionClasses)
+                .flatMap(Set::stream)
                 .collect(Collectors.toSet());
     }
 
     public String toString(){
         return getCompetitionClasses().stream()
                 .collect(Collectors.joining(",",name + " (",")"));
+    }
+
+    public boolean childrenNotReady(){
+        return getRaces().stream()
+                .anyMatch(Race::hasHeatsToRun);
     }
 }

@@ -3,6 +3,9 @@ package net.burgin.racetrack.domain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -13,10 +16,11 @@ import java.util.UUID;
 abstract public class AbstractRace extends AbstractRaceEventChangeNotifier implements Race {
     String name;
     UUID id = UUID.randomUUID();
+    List<Heat> heats = new ArrayList<>();
 
     public void setName(String name){
         this.name = name;
-        raceChanged((Race)this);
+        raceChanged(this);
     }
 
     @Override
@@ -24,4 +28,11 @@ abstract public class AbstractRace extends AbstractRaceEventChangeNotifier imple
         return name;
     }
 
+    public boolean hasHeatsToRun(){
+        return heats.stream().filter(heat -> heat.startTime == 0).findFirst().isPresent();
+    }
+
+    public boolean hasHeats(){
+        return heats.size()>0;
+    }
 }

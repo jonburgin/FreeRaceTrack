@@ -1,12 +1,13 @@
 package net.burgin.racetrack.gui.participants;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.Car;
 import net.burgin.racetrack.domain.Racer;
 import net.burgin.racetrack.gui.editablelist.AbstractEditPanel;
 import net.burgin.racetrack.gui.editablelist.DefaultEditableListModel;
 import net.burgin.racetrack.gui.editablelist.EditableList;
-import net.burgin.racetrack.gui.participants.CarEditPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 /**
  * Created by jonburgin on 12/14/15.
  */
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class RacerEditPanel extends AbstractEditPanel<Racer> {
     String firstNameLabel;
     String lastNameLabel;
@@ -27,7 +30,9 @@ public class RacerEditPanel extends AbstractEditPanel<Racer> {
     ImageIcon personImageIcon = new ImageIcon(ClassLoader.getSystemClassLoader().getSystemResource("images/duke.gif"));
     NotifierListener notifierListener = new NotifierListener();
     DefaultEditableListModel<Car> defaultEditableListModel
-            = new DefaultEditableListModel<Car>(() -> new ArrayList<Car>());
+            = new DefaultEditableListModel<>(() -> new ArrayList<>());
+    EditableList<Car> carList;
+    CarEditPanel carEditPanel;
 
     public RacerEditPanel() {
         createT();
@@ -78,15 +83,14 @@ public class RacerEditPanel extends AbstractEditPanel<Racer> {
     private JComponent buildCarsPanel() {
         JPanel carPanel = new JPanel(new BorderLayout());
         carPanel.setBorder(BorderFactory.createTitledBorder(carTitle));
-        CarEditPanel carEditPanel = new CarEditPanel();
-        EditableList<Car> list
-                = new EditableList<>(defaultEditableListModel,
+        carEditPanel = new CarEditPanel();
+        carList = new EditableList<>(defaultEditableListModel,
                 carEditPanel);
         JPanel panel2 = new JPanel(new BorderLayout());
         JButton jButton = new JButton("New...");
-        jButton.addActionListener((ActionEvent)->list.update(new Car("Le Car","Tiger")));
+        jButton.addActionListener((ActionEvent)-> carList.update(new Car("Car Name","Tiger")));
         panel2.add(jButton, BorderLayout.NORTH);
-        panel2.add(new JScrollPane(list),BorderLayout.CENTER);
+        panel2.add(new JScrollPane(carList),BorderLayout.CENTER);
         carPanel.add(panel2,BorderLayout.CENTER);
         carPanel.add(carEditPanel,BorderLayout.EAST);
         return carPanel;

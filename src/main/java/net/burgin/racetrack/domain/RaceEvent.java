@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 public class RaceEvent extends AbstractRaceParent {
     Set<String> competitionClasses = new HashSet<>();
     List<Racer> racers = new ArrayList<>();
-    Map<UUID, List<Heat>> heats = new HashMap<>();
-    Map<UUID, DefaultRaceResult> results = new HashMap<>();
+//    Map<UUID, List<Heat>> heats = new HashMap<>();
+//    Map<UUID, DefaultRaceResult> results = new HashMap<>();
     Track track = new DefaultTrack(6);//todo remove this
     @JsonIgnore
     HeatGenerator heatGenerator = new DefaultHeatGenerator(this);
@@ -56,5 +56,36 @@ public class RaceEvent extends AbstractRaceParent {
                 .map(Racer::getCars)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
+    }
+
+    public List<Race> getRacesAsList(){
+        List<Race> list = new ArrayList<>();
+        getRaces().stream()
+                .forEach(r->list.addAll(getRacesAsList(r)));
+        return list;
+    }
+
+    protected List<Race> getRacesAsList(Race race){
+        if(race instanceof SimpleRace)
+            return Arrays.asList(race);
+        List<Race> list =
+                ((RaceParent)race).getRaces().stream()
+                    .map(this::getRacesAsList)
+                    .flatMap(l->l.stream())
+                    .collect(Collectors.toList());
+        list.add(race);
+        return list;
+    }
+
+    public List<Heat> getHeats(){
+        return getRacesAsList().stream()
+                .map(race -> race.getHeats())
+                .flatMap(l->l.stream())
+                .collect(Collectors.toList());
+    }
+
+    public void generateHeats(){
+        heatGenerator.generateAllRaceHeats();
+        //todo generate the runoff heats as available
     }
 }

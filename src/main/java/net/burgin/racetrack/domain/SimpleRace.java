@@ -16,6 +16,10 @@ import java.util.Set;
 public class SimpleRace extends AbstractRace{
 
     Set<String> competitionClasses = new HashSet<>();
+    /**
+     * if true, this allows for cars of different competition classes to race together, but not actually compete against each other
+     */
+    boolean byClassification;
 
     public SimpleRace(){}
 

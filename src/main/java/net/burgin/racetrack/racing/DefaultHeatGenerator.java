@@ -17,73 +17,50 @@ public class DefaultHeatGenerator implements HeatGenerator {
     }
 
     @Override
-    public List<Heat> generateAllSimpleRaceHeats(){
-        return getLeafRaces(raceEvent).stream()
-                .map(race -> generateHeatsForSimpleRace(race))
-                .flatMap(l->l.stream())
-                .collect(Collectors.toList());
+    public void generateAllRaceHeats(){
+        raceEvent.getRacesAsList().stream()
+                .filter(race -> !race.hasHeats())
+                .forEach(this::generateHeatsForRace);
     }
 
-    @Override
-    public List<Heat> generateHeatsForRunoffRace(RunoffRace runoff){
-        List<DefaultRaceResult> results = runoff.getRaces().stream()
-                .map(racetype ->raceEvent.getResults().get(racetype.getId()))
-                .collect(Collectors.toList());
-        List<Car> cars = results.stream()
-                .map(result -> getCompetitorsFromSubRace(runoff, result))
-                .flatMap(competitorsList -> competitorsList.stream())
-                .map(competitor -> competitor.getCar())
-                .collect(Collectors.toList());
-        return generateHeats(runoff.getId(), cars,raceEvent.getTrack().getLaneCount());
-    }
-
-    List<Competitor> getCompetitorsFromSubRace(RunoffRace runoff, RaceResult raceResult){
-        long take = runoff.getTakeNumber();
-        Set<String> raceClassifications = runoff.isByClassification()?
-                raceResult.getRaceClassifications():new HashSet(Arrays.asList(RaceResult.ALL_COMPETITION_CLASSES));
-        return raceClassifications.stream()
-                .map(c -> raceResult.getResults().get(c))
-                .limit(take)
-                .flatMap(lists->lists.stream())
-                .collect(Collectors.toList());
-    }
-
-    List<SimpleRace> getLeafRaces(RaceParent raceParent){
-        return  raceParent.getRaces().stream()
-                .map(raceType -> raceType instanceof SimpleRace ? Arrays.asList((SimpleRace)raceType): getLeafRaces((RaceParent)raceType))
-                .flatMap(raceList->raceList.stream())
-                .collect(Collectors.toList());
-    }
-
-
-    @Override
-    public List<Heat> generateHeatsForSimpleRace(SimpleRace simpleRace){
-        List<Car> cars = raceEvent.getCars();
+    public void generateHeatsForRace(Race race){
         Track track = raceEvent.getTrack();
+        List<Car> validCars = race instanceof SimpleRace?getCarsForSimpleRace((SimpleRace)race):getCarsForRunoffRace((RunoffRace)race);
+        race.setHeats(generateHeats(race, validCars, track.getLaneCount()));
+    }
+
+    protected List<Car> getCarsForRunoffRace(RunoffRace runoff){
+        if(runoff.childrenNotReady())
+            return new ArrayList<>();
+        return runoff.getRaces().stream()
+                .map(race -> new DefaultRaceResult(race).getResults())
+                .flatMap(List::stream)
+                .map(l -> l.subList(0, runoff.getTakeNumber()))
+                .flatMap(List::stream)
+                .map(Competitor::getCar)
+                .collect(Collectors.toList());
+    }
+
+
+    protected List<Car> getCarsForSimpleRace(SimpleRace simpleRace){
         Set<String> competionClasses = simpleRace.getCompetitionClasses();
-        List<Car> validCars = cars.stream()
+        return raceEvent.getCars().stream()
                 .filter(car -> competionClasses.contains(car.getCompetitionClass()))
                 .collect(Collectors.toList());
-        return generateHeats(simpleRace.getId(), validCars,track.getLaneCount());
     }
 
-    protected List<Heat> generateHeats(UUID id, List<Car> cars, int numberOfLanes){
+    protected List<Heat> generateHeats(Race race, List<Car> cars, int numberOfLanes){
         List<Heat> heats = IntStream.range(0, cars.size())
                 .mapToObj(i -> {
-                    List<Competitor> competitors = createNumberCompetitorsFromCarList(cars,numberOfLanes);
+                    List<Car> competitors = cars.stream()
+                            .limit(numberOfLanes)
+                            .collect(Collectors.toList());
                     cars.add(cars.remove(0));//rotate the cars
                     return competitors;
                 })
-                .map(list -> new Heat(id,list))
+                .map(list -> new Heat(race,list))
                 .collect(Collectors.toList());
         return heats;
-
     }
 
-    protected List<Competitor> createNumberCompetitorsFromCarList(List<Car> cars, int limit){
-        return cars.stream()
-                .limit(limit)
-                .map(car -> new Competitor(car))
-                .collect(Collectors.toList());
-    }
 }

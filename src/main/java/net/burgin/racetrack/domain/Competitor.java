@@ -12,6 +12,7 @@ import net.burgin.racetrack.domain.Car;
 public class Competitor {
     Car car;
     long raceTime;
+    double averageTime;
 
     public Competitor(Car car){
         this.car = car;

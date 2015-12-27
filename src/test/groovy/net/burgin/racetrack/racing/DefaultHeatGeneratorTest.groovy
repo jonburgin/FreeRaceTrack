@@ -81,7 +81,7 @@ class DefaultHeatGeneratorTest extends Specification {
         raceEvent.getRaces()>>[runoff]
         raceEvent.getCars()>>[tigerCar1,wolfCar1,tigerCar2,tigerCar3, tigerCar4, wolfCar2]
         when:
-        def heats = heatGenerator.generateAllSimpleRaceHeats(raceEvent)
+        def heats = heatGenerator.generateAllRaceHeats(raceEvent)
         then:
         heats.size == 6
     }

@@ -2,6 +2,7 @@ package net.burgin.racetrack.domain;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -13,6 +14,9 @@ import java.util.UUID;
         property = "@CLASS")
 public interface Race extends RaceEventChangeNotifier{
     String getName();
-    UUID getId();
     Set<String> getCompetitionClasses();
+    List<Heat> getHeats();
+    boolean hasHeats();
+    boolean hasHeatsToRun();
+    void setHeats(List<Heat> heats);
 }

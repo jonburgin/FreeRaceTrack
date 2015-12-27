@@ -3,6 +3,7 @@ package net.burgin.racetrack.gui;
 import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.*;
 import net.burgin.racetrack.gui.editablelist.DefaultEditableListModel;
+import net.burgin.racetrack.gui.editablelist.EditUpdateListener;
 import net.burgin.racetrack.gui.editablelist.EditableList;
 import net.burgin.racetrack.gui.heats.HeatPanel;
 import net.burgin.racetrack.gui.participants.RacerEditPanel;
@@ -61,13 +62,15 @@ public class EventInternalFrame extends JInternalFrame {
         EditableList<Racer> list
                 = new EditableList<>(new DefaultEditableListModel(()->raceEvent.getRacers()),
                 racerEditPanel);
-        JButton jButton = new JButton("New...");
-        jButton.addActionListener(actionEvent -> list.update(new Racer("New","Racer")));
+
+        JButton jButton = new JButton("New...");//// TODO: 12/26/15
+        jButton.addActionListener(actionEvent -> list.update(new Racer("New","Racer")));//todo
         JPanel panel2 = new JPanel(new BorderLayout());
         panel2.add(jButton,BorderLayout.NORTH);
         panel2.add(new JScrollPane(list), BorderLayout.CENTER);
         panel.add(panel2, BorderLayout.CENTER);
         panel.add(racerEditPanel, BorderLayout.EAST);
+        racerEditPanel.getCarEditPanel().addEditUpdateListener((car)->list.update(racerEditPanel.getT()));
         return panel;
     }
 
