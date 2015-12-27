@@ -8,7 +8,9 @@ import lombok.Data;
 @Data
 public class DefaultTrack implements Track {
     int laneCount = 0;
+    public DefaultTrack(){}
     public DefaultTrack(int laneCount){
+        this();
         this.laneCount = laneCount;
     }
 }

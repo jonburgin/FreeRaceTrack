@@ -3,7 +3,6 @@ package net.burgin.racetrack.gui;
 import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.*;
 import net.burgin.racetrack.gui.editablelist.DefaultEditableListModel;
-import net.burgin.racetrack.gui.editablelist.EditUpdateListener;
 import net.burgin.racetrack.gui.editablelist.EditableList;
 import net.burgin.racetrack.gui.heats.HeatPanel;
 import net.burgin.racetrack.gui.participants.RacerEditPanel;
@@ -16,12 +15,12 @@ import java.awt.*;
  */
 public class EventInternalFrame extends JInternalFrame {
     RaceEvent raceEvent;
-    JList<Car> carsList = new JList<>();
-    JLabel carNameLabel = new JLabel("Speedster");
+    JList<Vehicle> vehicleList = new JList<>();
+    JLabel vehicleNameLabel = new JLabel("Speedster");
     JLabel ownerNameLabel = new JLabel("Duke");
-    JLabel carClassLabel = new JLabel("Tiger");
+    JLabel vehicleClassLabel = new JLabel("Tiger");
     ImageIcon personImageIcon = new ImageIcon(ClassLoader.getSystemClassLoader().getSystemResource("images/duke.gif"));
-    ImageIcon carImageIcon = new ImageIcon(ClassLoader.getSystemClassLoader().getSystemResource("images/pinewood-derby.jpg"));
+    ImageIcon vehicleImageIcon = new ImageIcon(ClassLoader.getSystemClassLoader().getSystemResource("images/pinewood-derby.jpg"));
 
     public EventInternalFrame(RaceEvent raceEvent){
         if(raceEvent == null)throw new IllegalArgumentException("RaceEvent may not be null!");
@@ -70,7 +69,7 @@ public class EventInternalFrame extends JInternalFrame {
         panel2.add(new JScrollPane(list), BorderLayout.CENTER);
         panel.add(panel2, BorderLayout.CENTER);
         panel.add(racerEditPanel, BorderLayout.EAST);
-        racerEditPanel.getCarEditPanel().addEditUpdateListener((car)->list.update(racerEditPanel.getT()));
+        racerEditPanel.getVehicleEditPanel().addEditUpdateListener((car)->list.update(racerEditPanel.getT()));
         return panel;
     }
 
@@ -85,15 +84,15 @@ public class EventInternalFrame extends JInternalFrame {
         gc.gridy=0;
         panel.add(buildRaceListPanel(),gc);
         gc.gridx++;
-        panel.add(buildCarListPanel(),gc);
+        panel.add(buildVehicleListPanel(),gc);
         gc.gridx++;
-        panel.add(buildCarDetailPanel(), gc);
+        panel.add(buildVehicleDetailPanel(), gc);
         return panel;
     }
 
-    private Component buildCarDetailPanel() {
+    private Component buildVehicleDetailPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder(RaceTrackResourceBundle.getInstance().getString("car.detail.title")));
+        panel.setBorder(BorderFactory.createTitledBorder(RaceTrackResourceBundle.getInstance().getString("vehicle.detail.title")));
         GridBagConstraints gc = new GridBagConstraints();
         gc.insets = new Insets(3,3,3,3);
         gc.fill = GridBagConstraints.NONE;
@@ -102,7 +101,7 @@ public class EventInternalFrame extends JInternalFrame {
         gc.gridy=0;
         panel.add(new JLabel(RaceTrackResourceBundle.getInstance().getString("name")),gc);
         gc.gridx++;
-        panel.add(carNameLabel,gc);
+        panel.add(vehicleNameLabel,gc);
         gc.gridx++;
         gc.gridwidth=GridBagConstraints.REMAINDER;
         gc.fill = GridBagConstraints.HORIZONTAL;
@@ -114,14 +113,14 @@ public class EventInternalFrame extends JInternalFrame {
         gc.gridy++;
         panel.add(new JLabel(RaceTrackResourceBundle.getInstance().getString("class")),gc);
         gc.gridx++;
-        panel.add(carClassLabel, gc);
+        panel.add(vehicleClassLabel, gc);
         //-----
         gc.gridx = 0;
         gc.gridy++;
         gc.weightx = 1;
         gc.gridwidth=3;
         gc.fill = GridBagConstraints.BOTH;
-        panel.add(new JLabel(carImageIcon), gc);
+        panel.add(new JLabel(vehicleImageIcon), gc);
         gc.fill = GridBagConstraints.NONE;
         gc.gridwidth=1;
         gc.weightx = 0;
@@ -147,10 +146,10 @@ public class EventInternalFrame extends JInternalFrame {
         return panel;
     }
 
-    private Component buildCarListPanel() {
+    private Component buildVehicleListPanel() {
         Box box = Box.createVerticalBox();
-        box.setBorder(BorderFactory.createTitledBorder(RaceTrackResourceBundle.getInstance().getString("car.title")));
-        box.add(new JScrollPane(carsList));
+        box.setBorder(BorderFactory.createTitledBorder(RaceTrackResourceBundle.getInstance().getString("vehicle.title")));
+        box.add(new JScrollPane(vehicleList));
         return box;
     }
 
@@ -165,12 +164,12 @@ public class EventInternalFrame extends JInternalFrame {
     }
 
     private void buildDefaultTemplate() {
-        RunoffRace championship = new RunoffRace("Grand Championship", 2);
+        DefaultRunoffRace championship = new DefaultRunoffRace("Grand Championship", 2);
+        championship.addRace(new DefaultSimpleRace("Tiger's and Wolves",true, "Tiger", "Wolf"));
+        championship.addRace(new DefaultSimpleRace("Bears", "Bear"));
+        championship.addRace(new DefaultSimpleRace("Webelos I", "Web I"));
+        championship.addRace(new DefaultSimpleRace("Webelos II", "Web II"));
+        championship.addRace(new DefaultSimpleRace("Open", "Open"));
         raceEvent.addRace(championship);
-        championship.addRace(new SimpleRace("Tiger's and Wolves", "Tiger", "Wolf"));
-        championship.addRace(new SimpleRace("Bears", "Bear"));
-        championship.addRace(new SimpleRace("Webelos I", "Web I"));
-        championship.addRace(new SimpleRace("Webelos II", "Web II"));
-        championship.addRace(new SimpleRace("Open", "Open"));
     }
 }

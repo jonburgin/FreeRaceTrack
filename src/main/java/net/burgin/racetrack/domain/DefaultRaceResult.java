@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class DefaultRaceResult implements RaceResult{
     @JsonIgnore
     private final Race race;
-    List<List<Competitor>> results;
+    List<List<Competitor>> competitors;
 
     public DefaultRaceResult(Race race){
         this.race = race;
@@ -24,24 +24,24 @@ public class DefaultRaceResult implements RaceResult{
                 .peek(this::normalizeRaceTime)
                 .map(Heat::getCompetitors)
                 .flatMap(List::stream)
-                .collect(Collectors.groupingBy(Competitor::getCar))
+                .collect(Collectors.groupingBy(Competitor::getVehicle))
                 .values().stream()
                 .map(this::computeAverageTime)
                 .collect(Collectors.toList());
-        if(race instanceof SimpleRace && ((SimpleRace)race).isByClassification())
-            results = new ArrayList(resultsByCompetitionClass(list));
+        if(race instanceof DefaultSimpleRace && ((DefaultSimpleRace)race).isByClassification())
+            competitors = new ArrayList(resultsByCompetitionClass(list));
         else
-            results =  Arrays.asList(list);
+            competitors =  Arrays.asList(list);
     }
 
     Collection<List<Competitor>> resultsByCompetitionClass(List<Competitor> list){
         Map<String, List<Competitor>> collect = list.stream()
-                .collect(Collectors.groupingBy(competitor -> competitor.getCar().getCompetitionClass()));
+                .collect(Collectors.groupingBy(competitor -> competitor.getVehicle().getCompetitionClass()));
         return collect.values();
     }
 
     Competitor computeAverageTime(List<Competitor> competitors){
-        Competitor competitor = new Competitor(competitors.get(0).getCar());
+        Competitor competitor = new Competitor(competitors.get(0).getVehicle());
         competitor.setAverageTime( competitors.stream()
                 .mapToLong(Competitor::getRaceTime)
                 .average().getAsDouble());

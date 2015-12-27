@@ -20,123 +20,141 @@ class RaceEventTest extends Specification {
     def setup(){
         raceEvent.setName("Derby 2016")
         def racer1 = new Racer("Jon", "Burgin")
-        racer1.setCars(Arrays.asList(new Car("Herbie", class1), new Car("Dominator", class2)))
+        racer1.setVehicles(Arrays.asList(new Vehicle("Herbie", class1), new Vehicle("Dominator", class2)))
         def racer2 = new Racer("Freedom", "Burgin")
-        racer2.setCars(Arrays.asList(new Car("Herbie2", class1), new Car("Dominator2", class2)))
+        racer2.setVehicles(Arrays.asList(new Vehicle("Herbie2", class1), new Vehicle("Dominator2", class2)))
         raceEvent.setRacers(Arrays.asList(racer1,racer2))
-        def race1 = new SimpleRace("Race1", class1, class2)
-        def race2 = new SimpleRace("Race2", class2)
-        RunoffRace runoff = new RunoffRace("Grand Championship",1)
+        def race1 = new DefaultSimpleRace("Race1", class1, class2)
+        def race2 = new DefaultSimpleRace("Race2", class2)
+        DefaultRunoffRace runoff = new DefaultRunoffRace("Grand Championship",1)
         runoff.setRaces(Arrays.asList(race1, race2))
         raceEvent.setRaces(Arrays.asList(runoff))
         raceEvent.setCompetitionClasses(new HashSet(Arrays.asList(class1,class2)))
     }
 
     def "json serilization/deserlization is correct"(){
+        def string = mapper.writeValueAsString(raceEvent)
         when:
-        def raceEventRead = mapper.readValue(mapper.writeValueAsString(raceEvent), RaceEvent.class)
+        def raceEventRead = mapper.readValue(string, RaceEvent.class)
         then:
         raceEventRead.equals(raceEvent)
     }
 
-    def "find maxCar returns maximum car id from list"(){
+    def "find maxVehicle returns maximum vehicle id from list"(){
         setup:
-        Car car1 = new Car()
+        Vehicle car1 = new Vehicle()
         car1.setId(1)
-        Car car2 = new Car()
+        car1.setCompetitionClass("foo")
+        Vehicle car2 = new Vehicle()
         car2.setId(2)
-        Car car3 = new Car()
+        car2.setCompetitionClass("foo")
+        Vehicle car3 = new Vehicle()
         car3.setId(3)
+        car3.setCompetitionClass("foo")
         Racer r1 = Mock()
         Racer r2 = Mock()
 
-        r1.getCars() >>> [[car1,car2],[car1],[car3]]
-        r2.getCars() >>> [[car3],[car2,car3],[car1,car2]]
+        r1.getVehicles() >>> [[car1, car2], [car1], [car3]]
+        r2.getVehicles() >>> [[car3], [car2, car3], [car1, car2]]
 
-        RaceEvent re1 = new RaceEvent()
-        re1.setRacers(Arrays.asList(r1, r2))
+        RaceEvent raceEvent = new RaceEvent()
+        raceEvent.setCompetitionClasses(new HashSet<>(["foo"]))
+        raceEvent.setRacers([r1, r2])
         expect:
-        re1.findMaxCarId() == maxCarIdValue
+        raceEvent.findMaxVehicleId() == maxCarIdValue
         where:
         maxCarIdValue << [3, 3, 3]
 
     }
 
-    def "find car by id returns appropriate car"(){
+    def "findVehicleById returns appropriate vehicle"(){
         setup:
-        Car car1 = new Car()
+        Vehicle car1 = new Vehicle()
         car1.setId(1)
-        Car car2 = new Car()
+        car1.setCompetitionClass("foo")
+        Vehicle car2 = new Vehicle()
         car2.setId(2)
-        Car car3 = new Car()
+        car2.setCompetitionClass("foo")
+        Vehicle car3 = new Vehicle()
+        car3.setCompetitionClass("foo")
         car3.setId(3)
         Racer r1 = Mock()
         Racer r2 = Mock()
 
-        r1.getCars() >>> [[car1,car2],[car1],[car3]]
-        r2.getCars() >>> [[car3],[car2,car3],[car1,car2]]
+        r1.getVehicles() >>> [[car1, car2], [car1], [car3]]
+        r2.getVehicles() >>> [[car3], [car2, car3], [car1, car2]]
 
         RaceEvent re = new RaceEvent()
-        re.setRacers(Arrays.asList(r1, r2))
+        re.setCompetitionClasses(new HashSet<>(["foo"]))
+        re.setRacers([r1, r2])
         expect:
-        re.findCarById(3).get() == car3;
-        re.findCarById(3).get() == car3;
-        re.findCarById(3).get() == car3;
+        re.findVehicleById(3).get() == car3;
+        re.findVehicleById(3).get() == car3;
+        re.findVehicleById(3).get() == car3;
     }
 
-    def "assign car ids with no assigned ids, assigns starting with 1"(){
+    def "assignVehicleIds with no assigned ids, assigns starting with 1"(){
         setup:
-        Car car1 = new Car()
-        Car car2 = new Car()
-        Car car3 = new Car()
+        Vehicle car1 = new Vehicle()
+        car1.setCompetitionClass("foo")
+        Vehicle car2 = new Vehicle()
+        car2.setCompetitionClass("foo")
+        Vehicle car3 = new Vehicle()
+        car3.setCompetitionClass("foo")
         Racer r1 = Mock()
         Racer r2 = Mock()
-        r1.getCars() >> [car1,car2]
-        r2.getCars() >> [car3]
+        r1.getVehicles() >> [car1, car2]
+        r2.getVehicles() >> [car3]
         RaceEvent re = new RaceEvent()
-        re.setRacers(Arrays.asList(r1, r2))
-        re.assignCarIds()
+        re.setCompetitionClasses(new HashSet<>(["foo"]))
+        re.setRacers([r1, r2])
+        re.assignVehicleIds()
         expect:
         car1.getId() == 1
         car2.getId() == 2
         car3.getId() == 3
     }
-    def "assign car ids with some id, assigns starting with next greater value"(){
+    def "assignVehicleIds with some id, assigns starting with next greater value"(){
         setup:
-        Car car1 = new Car()
-        Car car2 = new Car()
-        Car car3 = new Car()
+        Vehicle car1 = new Vehicle()
+        car1.setCompetitionClass("foo")
+        Vehicle car2 = new Vehicle()
+        car2.setCompetitionClass("foo")
+        Vehicle car3 = new Vehicle()
         car3.setId(3)
+        car3.setCompetitionClass("foo")
         Racer r1 = Mock()
         Racer r2 = Mock()
-        r1.getCars() >> [car1,car2]
-        r2.getCars() >> [car3]
+        r1.getVehicles() >> [car1, car2]
+        r2.getVehicles() >> [car3]
         RaceEvent re = new RaceEvent()
-        re.setRacers(Arrays.asList(r1, r2))
-        re.assignCarIds()
+        re.setRacers([r1, r2])
+        re.setCompetitionClasses(new HashSet<>(["foo"]))
+        re.assignVehicleIds()
         expect:
         car1.getId() == 4
         car2.getId() == 5
         car3.getId() == 3
     }
 
-    def "getCars returns all the cars"(){
+    def "getVehicles returns all the vehicles with the given raceclassification"(){
         setup:
-        Car car1 = new Car()
-        Car car2 = new Car()
-        Car car3 = new Car()
+        Vehicle car1 = new Vehicle()
+        car1.setCompetitionClass("foo")
+        Vehicle car2 = new Vehicle()
+        car2.setCompetitionClass("foo")
+        Vehicle car3 = new Vehicle()
         Racer r1 = Mock()
         Racer r2 = Mock()
-        r1.getCars() >> [car1,car2]
-        r2.getCars() >> [car3]
+        r1.getVehicles() >> [car1, car2]
+        r2.getVehicles() >> [car3]
         RaceEvent re = new RaceEvent()
         re.setRacers(Arrays.asList(r1, r2))
-        def cars = re.getCars()
+        re.setCompetitionClasses(new HashSet<>(["foo"]))
+        def cars = re.getVehicles()
         expect:
-        cars.size() == 3
+        cars.size() == 2
         cars.contains(car1)
         cars.contains(car2)
-        cars.contains(car3)
-
     }
 }

@@ -3,7 +3,7 @@ package net.burgin.racetrack.gui.participants;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.RaceTrackResourceBundle;
-import net.burgin.racetrack.domain.Car;
+import net.burgin.racetrack.domain.Vehicle;
 import net.burgin.racetrack.gui.editablelist.AbstractEditPanel;
 
 import javax.swing.*;
@@ -15,16 +15,16 @@ import java.awt.event.ItemEvent;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class CarEditPanel extends AbstractEditPanel<Car> {
+public class VehicleEditPanel extends AbstractEditPanel<Vehicle> {
     private JTextField nameTextField;
     JComboBox<String> raceClassComboBox;
     String photoTitle;
     String nameTitle;
-    ImageIcon carImageIcon = new ImageIcon(ClassLoader.getSystemClassLoader().getSystemResource("images/pinewood-derby2.jpg"));
-    private String carTitle;
-    private String carClassTitle;
+    ImageIcon vehicleImageIcon = new ImageIcon(ClassLoader.getSystemClassLoader().getSystemResource("images/pinewood-derby2.jpg"));
+    private String vehicleTitle;
+    private String vehicleRaceClassificationTitle;
 
-    public CarEditPanel(){
+    public VehicleEditPanel(){
         createT();
         loadResources();
         buildGui();
@@ -42,7 +42,7 @@ public class CarEditPanel extends AbstractEditPanel<Car> {
         c.fill = GridBagConstraints.BOTH;
         c.weightx=1;
         c.weighty=1;
-        JLabel jLabel = new JLabel(carImageIcon);
+        JLabel jLabel = new JLabel(vehicleImageIcon);
         add(jLabel,c);
     }
 
@@ -63,7 +63,7 @@ public class CarEditPanel extends AbstractEditPanel<Car> {
         c.gridx=0;
         c.gridy++;
         c.gridwidth = GridBagConstraints.RELATIVE;
-        panel.add(new JLabel(carClassTitle),c);
+        panel.add(new JLabel(vehicleRaceClassificationTitle),c);
         c.gridx++;
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -82,20 +82,20 @@ public class CarEditPanel extends AbstractEditPanel<Car> {
     JComponent buildImagePanel(){
         JPanel imagePanel = new JPanel();
         imagePanel.setBorder(BorderFactory.createTitledBorder(photoTitle));
-        imagePanel.add(new JLabel(carImageIcon));
+        imagePanel.add(new JLabel(vehicleImageIcon));
         return imagePanel;
     }
 
     void loadResources() {
-        carClassTitle = RaceTrackResourceBundle.getInstance().getString("car.class");
+        vehicleRaceClassificationTitle = RaceTrackResourceBundle.getInstance().getString("vehicle.class");
         photoTitle = RaceTrackResourceBundle.getInstance().getString("image");
-        carTitle = RaceTrackResourceBundle.getInstance().getString("car");
+        vehicleTitle = RaceTrackResourceBundle.getInstance().getString("vehicle");
         nameTitle = RaceTrackResourceBundle.getInstance().getString("nameLabel");
     }
 
     @Override
     protected void createT(){
-        t = new Car();
+        t = new Vehicle();
     }
 
     @Override
@@ -105,9 +105,9 @@ public class CarEditPanel extends AbstractEditPanel<Car> {
     }
 
     @Override
-    protected void populateFields(Car car){
-        nameTextField.setText(car.getName());
-        String competitionClass = car.getCompetitionClass();
+    protected void populateFields(Vehicle vehicle){
+        nameTextField.setText(vehicle.getName());
+        String competitionClass = vehicle.getCompetitionClass();
         if(competitionClass !=null && competitionClass.length()>0)
             raceClassComboBox.setSelectedItem(competitionClass);
     }

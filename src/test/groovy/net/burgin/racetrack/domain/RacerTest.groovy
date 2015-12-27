@@ -14,7 +14,7 @@ class RacerTest extends Specification{
     def mapper = new ObjectMapper()
 
     def setup(){
-        racer.setCars(Arrays.asList(new Car("Herbie", "Tiger"), new Car("Dominator", "Web II")));
+        racer.setVehicles(Arrays.asList(new Vehicle("Herbie", "Tiger"), new Vehicle("Dominator", "Web II")));
     }
 
     def "Json serializatin/deserialization is correct"(){
@@ -23,6 +23,6 @@ class RacerTest extends Specification{
         then:
         racerRead.firstName == "Jon"
         racerRead.lastName == "Burgin"
-        racerRead.cars.size() == 2
+        racerRead.vehicles.size() == 2
     }
 }

@@ -3,7 +3,7 @@ package net.burgin.racetrack.gui.participants;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.RaceTrackResourceBundle;
-import net.burgin.racetrack.domain.Car;
+import net.burgin.racetrack.domain.Vehicle;
 import net.burgin.racetrack.domain.Racer;
 import net.burgin.racetrack.gui.editablelist.AbstractEditPanel;
 import net.burgin.racetrack.gui.editablelist.DefaultEditableListModel;
@@ -29,14 +29,14 @@ public class RacerEditPanel extends AbstractEditPanel<Racer> {
     private String nameTitle;
     ImageIcon personImageIcon = new ImageIcon(ClassLoader.getSystemClassLoader().getSystemResource("images/duke.gif"));
     NotifierListener notifierListener = new NotifierListener();
-    DefaultEditableListModel<Car> defaultEditableListModel
+    DefaultEditableListModel<Vehicle> defaultEditableListModel
             = new DefaultEditableListModel<>(() -> new ArrayList<>());
-    EditableList<Car> carList;
-    CarEditPanel carEditPanel;
+    EditableList<Vehicle> carList;
+    VehicleEditPanel vehicleEditPanel;
 
     public RacerEditPanel() {
         createT();
-        defaultEditableListModel.setSupplier(()->t.getCars());
+        defaultEditableListModel.setSupplier(()->t.getVehicles());
         buildGui();
         setEnabled(false);
     }
@@ -44,7 +44,7 @@ public class RacerEditPanel extends AbstractEditPanel<Racer> {
     protected void populateFields(Racer racer){
         firstNameField.setText(racer.getFirstName());
         lastNameField.setText(racer.getLastName());
-        defaultEditableListModel.setSupplier(()->racer.getCars());
+        defaultEditableListModel.setSupplier(()->racer.getVehicles());
     }
 
     private void buildGui() {
@@ -83,16 +83,16 @@ public class RacerEditPanel extends AbstractEditPanel<Racer> {
     private JComponent buildCarsPanel() {
         JPanel carPanel = new JPanel(new BorderLayout());
         carPanel.setBorder(BorderFactory.createTitledBorder(carTitle));
-        carEditPanel = new CarEditPanel();
+        vehicleEditPanel = new VehicleEditPanel();
         carList = new EditableList<>(defaultEditableListModel,
-                carEditPanel);
+                vehicleEditPanel);
         JPanel panel2 = new JPanel(new BorderLayout());
         JButton jButton = new JButton("New...");
-        jButton.addActionListener((ActionEvent)-> carList.update(new Car("Car Name","Tiger")));
+        jButton.addActionListener((ActionEvent)-> carList.update(new Vehicle("Vehicle Name","Tiger")));
         panel2.add(jButton, BorderLayout.NORTH);
         panel2.add(new JScrollPane(carList),BorderLayout.CENTER);
         carPanel.add(panel2,BorderLayout.CENTER);
-        carPanel.add(carEditPanel,BorderLayout.EAST);
+        carPanel.add(vehicleEditPanel,BorderLayout.EAST);
         return carPanel;
     }
 
@@ -135,7 +135,7 @@ public class RacerEditPanel extends AbstractEditPanel<Racer> {
         lastNameLabel = RaceTrackResourceBundle.getInstance().getString("racerPanel.lastname");
         title = RaceTrackResourceBundle.getInstance().getString("racerPanel.title");
         photoTitle = RaceTrackResourceBundle.getInstance().getString("image");
-        carTitle = RaceTrackResourceBundle.getInstance().getString("racerPanel.cartitle");
+        carTitle = RaceTrackResourceBundle.getInstance().getString("racerPanel.vehicle.title");
         nameTitle = RaceTrackResourceBundle.getInstance().getString("name");
     }
 

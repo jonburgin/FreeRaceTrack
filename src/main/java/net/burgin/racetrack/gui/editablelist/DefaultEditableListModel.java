@@ -27,8 +27,8 @@ public class DefaultEditableListModel<T> extends AbstractListModel<T> implements
     @Override
     public void update(T t) {
         List<T> tees = supplier.get();
-        boolean newCar = !tees.contains(t);
-        if(newCar){
+        boolean isNewItem = !tees.contains(t);
+        if(isNewItem){
             tees.add(t);
             SwingUtilities.invokeLater(()->fireIntervalAdded(this, tees.size() - 1, tees.size()));
             return;

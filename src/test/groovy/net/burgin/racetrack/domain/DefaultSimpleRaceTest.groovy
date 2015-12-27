@@ -7,18 +7,18 @@ import spock.lang.Specification
 /**
  * Created by jonburgin on 12/11/15.
  */
-class SimpleRaceTest extends Specification {
-    def race = new SimpleRace()
+class DefaultSimpleRaceTest extends Specification {
+    def race = new DefaultSimpleRace()
     def mapper = new ObjectMapper()
-    def raceJson = "{\"@CLASS\":\"net.burgin.racetrack.domain.Race\",\"name\":\"Tiger Race\",\"competitionClasses\":[\"Tiger\",\"Wolf\",\"Cow\"]}"
 
     def setup(){
         race.name = "Tiger Race"
         race.competitionClasses = Arrays.asList("Tiger", "Wolf", "Cow")
+        race.byClassification = true
     }
 
     def "multi parameter constructor initializes variable correctly" (){
-        def race2 = new SimpleRace("name2", "one", "two")
+        def race2 = new DefaultSimpleRace("name2", "one", "two")
         expect:
         race2.name.equals("name2")
         race2.competitionClasses.size() == 2
@@ -26,11 +26,12 @@ class SimpleRaceTest extends Specification {
         race2.competitionClasses.contains("two")
     }
 
-    def "json output is correct"(){
+    def "json serialization is correct"(){
         when:
         def jsonString = mapper.writeValueAsString(race)
+        def raceRead = mapper.readValue(jsonString, Race.class)
         then:
-        jsonString.equals(raceJson)
+        raceRead.equals(race)
     }
 
     def "race change events are thrown on name change"(){
@@ -45,16 +46,5 @@ class SimpleRaceTest extends Specification {
     def "toString returns name"(){
         expect:
         race.toString().equals("Tiger Race")
-    }
-
-    def "Json input is correct"(){
-        when:
-        def raceRead = mapper.readValue(raceJson, Race.class)
-        then:
-        raceRead.name == "Tiger Race"
-        raceRead.competitionClasses.size() == 3
-        raceRead.competitionClasses.contains("Tiger")
-        raceRead.competitionClasses.contains("Wolf")
-        raceRead.competitionClasses.contains("Cow")
     }
 }

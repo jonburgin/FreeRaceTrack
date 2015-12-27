@@ -2,6 +2,7 @@ package net.burgin.racetrack.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.awt.*;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
  * competitors position within the list corresponds to their lane number
  */
 @Data
+@EqualsAndHashCode(exclude = "uuid")
 public class Heat {
     List<Competitor> competitors;
     UUID uuid = UUID.randomUUID();//for saving the photofinish
@@ -23,16 +25,16 @@ public class Heat {
     @JsonIgnore
     List<Image> photofinish;
 
-    public Heat(Race race, List<Car> cars){
+    public Heat(Race race, List<Vehicle> vehicles){
         name = race.getName();
-        competitors = cars.stream()
+        competitors = vehicles.stream()
             .map(car -> new Competitor(car))
             .collect(Collectors.toList());
     }
 
     public String toString(){
         return competitors.stream()
-                .map(competitor -> competitor.getCar().getName())
+                .map(competitor -> competitor.getVehicle().getName())
                 .collect(Collectors.joining("', '", name + " ['", "']"));
     }
 }

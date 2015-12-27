@@ -12,7 +12,7 @@ import java.util.UUID;
  * Created by jonburgin on 12/11/15.
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=false, exclude = "id")
 abstract public class AbstractRace extends AbstractRaceEventChangeNotifier implements Race {
     String name;
     UUID id = UUID.randomUUID();
@@ -34,5 +34,9 @@ abstract public class AbstractRace extends AbstractRaceEventChangeNotifier imple
 
     public boolean hasHeats(){
         return heats.size()>0;
+    }
+
+    public RaceResult getRaceResult(){
+        return new DefaultRaceResult(this);
     }
 }

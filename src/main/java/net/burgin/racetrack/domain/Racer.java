@@ -23,11 +23,11 @@ public class Racer {
     UUID uuid = UUID.randomUUID();
     String firstName;
     String lastName;
-    List<Car> cars = new ArrayList<>();
+    List<Vehicle> vehicles = new ArrayList<>();
     @JsonIgnore
     Image image;
     public String toString(){
-        return cars.stream()
+        return vehicles.stream()
                 .map(c->c.getName())
                 .collect(Collectors.joining(",", firstName + " " + lastName + " (", ")")).toString();
     }

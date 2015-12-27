@@ -16,17 +16,18 @@ import java.util.UUID;
 @Getter
 @Setter
 @EqualsAndHashCode(exclude="image")
-public class Car {
+public class Vehicle {
+    private int id;
     UUID uuid = UUID.randomUUID();
-    String name;
-    String competitionClass;
+    String name = "";
+    String competitionClass = "";
     @JsonIgnore
     Image image;
-    private int id;
 
-    public Car(){}
+    public Vehicle(){}
 
-    public Car(String name, String competitionClass){
+    public Vehicle(String name, String competitionClass){
+        this();
         this.name = name;
         this.competitionClass = competitionClass;
     }

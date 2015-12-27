@@ -13,51 +13,54 @@ import java.util.stream.Collectors;
  * Created by jonburgin on 12/4/15.
  */
 @Data
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper=true,exclude = "heatGenerator")
 public class RaceEvent extends AbstractRaceParent {
     Set<String> competitionClasses = new HashSet<>();
     List<Racer> racers = new ArrayList<>();
-//    Map<UUID, List<Heat>> heats = new HashMap<>();
-//    Map<UUID, DefaultRaceResult> results = new HashMap<>();
     Track track = new DefaultTrack(6);//todo remove this
     @JsonIgnore
     HeatGenerator heatGenerator = new DefaultHeatGenerator(this);
 
-    public void assignCarIds(){
-        Optional<Car> carWithId = findCarById(findMaxCarId());
-        Car maxCar;
-        if(carWithId.isPresent()) {
-            maxCar = carWithId.get();
-        }else {
-            maxCar = new Car();
-            maxCar.setId(0);
-        }
-        getCars().stream()
+    public void assignVehicleIds(){
+        Optional<Vehicle> vehicleWithId = findVehicleById(findMaxVehicleId());
+        Vehicle maxVehicle = vehicleWithId.isPresent()?vehicleWithId.get():new Vehicle();
+        getVehicles().stream()
                 .filter(car -> car.getId()==0)
-                .reduce(maxCar,(lastCarAssigned,carToBeAssigned)->{carToBeAssigned.setId(lastCarAssigned.getId()+1);return carToBeAssigned;});
+                .reduce(maxVehicle,(lastCarAssigned, carToBeAssigned)->{carToBeAssigned.setId(lastCarAssigned.getId()+1);return carToBeAssigned;});
 
     }
 
-    private Optional<Car> findCarById(int id){
-        return getCars().stream()
+    private Optional<Vehicle> findVehicleById(int id){
+        return getVehicles().stream()
                 .filter(car->car.getId() == id)
                 .findFirst();
     }
 
-    private int findMaxCarId(){
-        OptionalInt foundId = getCars().stream()
-                .mapToInt(Car::getId)
+    private int findMaxVehicleId(){
+        OptionalInt foundId = getVehicles().stream()
+                .mapToInt(Vehicle::getId)
                 .max();
-        return(Math.max(foundId.getAsInt(),1));
+        return foundId.getAsInt();
     }
 
-    public List<Car> getCars(){
+    @JsonIgnore
+    public List<Vehicle> getVehicles(){
         return racers.stream()
-                .map(Racer::getCars)
+                .map(Racer::getVehicles)
                 .flatMap(List::stream)
+                .filter(car -> competitionClasses.contains(car.getCompetitionClass()))
                 .collect(Collectors.toList());
     }
 
+    @JsonIgnore
+    public List<Vehicle> getVehicles(SimpleRace simpleRace){
+        Set<String> competionClasses = simpleRace.getCompetitionClasses();
+        return getVehicles().stream()
+                .filter(car -> competionClasses.contains(car.getCompetitionClass()))
+                .collect(Collectors.toList());
+    }
+
+    @JsonIgnore
     public List<Race> getRacesAsList(){
         List<Race> list = new ArrayList<>();
         getRaces().stream()
@@ -65,8 +68,9 @@ public class RaceEvent extends AbstractRaceParent {
         return list;
     }
 
+    @JsonIgnore
     protected List<Race> getRacesAsList(Race race){
-        if(race instanceof SimpleRace)
+        if(race instanceof DefaultSimpleRace)
             return Arrays.asList(race);
         List<Race> list =
                 ((RaceParent)race).getRaces().stream()
@@ -77,6 +81,7 @@ public class RaceEvent extends AbstractRaceParent {
         return list;
     }
 
+    @JsonIgnore
     public List<Heat> getHeats(){
         return getRacesAsList().stream()
                 .map(race -> race.getHeats())
@@ -86,6 +91,5 @@ public class RaceEvent extends AbstractRaceParent {
 
     public void generateHeats(){
         heatGenerator.generateAllRaceHeats();
-        //todo generate the runoff heats as available
     }
 }
