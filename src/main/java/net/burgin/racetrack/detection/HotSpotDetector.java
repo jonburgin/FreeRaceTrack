@@ -9,7 +9,7 @@ import java.awt.*;
  */
 public interface HotSpotDetector extends WebcamListener{
     void addHotSpotPoint(Point point);
-    void addHotSpotListener(HotSpotListener hotSpotListener);
+    void addHotSpotListener(DetectionEventListener detectionEventListener);
     void removeHotSpots();
     void setEnabled(boolean enabled);
 }

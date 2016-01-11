@@ -1,7 +1,6 @@
 package net.burgin.racetrack.gui.adapters;
 
 import net.burgin.racetrack.detection.HotSpotDetector;
-import net.burgin.racetrack.detection.OneTimeHotSpotDetector;
 import net.burgin.racetrack.detection.GeometricTrack;
 import net.burgin.racetrack.gui.RacetrackWebcamPanel;
 
@@ -25,15 +24,18 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
 
     @Override
     public void mouseDragged(MouseEvent mouseEvent) {
+        RacetrackWebcamPanel.MyPainter painter = (RacetrackWebcamPanel.MyPainter) racetrackWebcamPanel.getPainter();
         if(hotSpotPositioning){
             Point hotSpot = racetrackWebcamPanel.getGeometricTrack().getRaceStartHotSpot();
-            hotSpot.move(mouseEvent.getX(),mouseEvent.getY() );
+            hotSpot.move(painter.fromDisplayX(mouseEvent.getX()),painter.fromDisplayY(mouseEvent.getY()));
         }
         if(trackPositioning){
-            racetrackWebcamPanel.getGeometricTrack().setFinishLinePosition(new Point(mouseEvent.getX(), mouseEvent.getY()));
+            racetrackWebcamPanel.getGeometricTrack()
+                    .setFinishLinePosition(new Point(painter.fromDisplayX(mouseEvent.getX()), painter.fromDisplayY(mouseEvent.getY())));
         }
         if(trackStretching){
-            racetrackWebcamPanel.getGeometricTrack().adjustWidth(new Point(mouseEvent.getX(), mouseEvent.getY()));
+            racetrackWebcamPanel.getGeometricTrack()
+                    .adjustWidth(new Point(painter.fromDisplayX(mouseEvent.getX()), painter.fromDisplayY(mouseEvent.getY())));
         }
     }
 
@@ -58,7 +60,9 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
     }
 
     private boolean closeEnough(MouseEvent mouseEvent, Point p, int diameter){
-        return Math.abs(mouseEvent.getX() - p.x) < diameter && Math.abs(mouseEvent.getY() - p.y)< diameter;
+        RacetrackWebcamPanel.MyPainter painter = (RacetrackWebcamPanel.MyPainter) racetrackWebcamPanel.getPainter();
+        //todo need to do reverse transposition
+        return Math.abs(painter.fromDisplayX(mouseEvent.getX()) - p.x) < diameter && Math.abs(painter.fromDisplayY(mouseEvent.getY()) - p.y)< diameter;
     }
 
     private void setCursorType(int cursorType){
@@ -78,7 +82,7 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
             trackStretching = true;
         }
         if(trackPositioning || trackStretching || hotSpotPositioning){
-            racetrackWebcamPanel.getOneTimeHotSpotDetector().setEnabled(false);
+            racetrackWebcamPanel.getHotSpotDetector().setEnabled(false);
         }
     }
 
@@ -96,7 +100,7 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
         hotSpotPositioning = false;
         trackPositioning = false;
         trackStretching = false;
-        HotSpotDetector hotSpotDetector = racetrackWebcamPanel.getOneTimeHotSpotDetector();
+        HotSpotDetector hotSpotDetector = racetrackWebcamPanel.getHotSpotDetector();
         GeometricTrack geometricTrack = racetrackWebcamPanel.getGeometricTrack();
         hotSpotDetector.removeHotSpots();
         geometricTrack.getLanes().values().stream().forEach(point -> hotSpotDetector.addHotSpotPoint(point));

@@ -92,4 +92,11 @@ public class RaceEvent extends AbstractRaceParent {
     public void generateHeats(){
         heatGenerator.generateAllRaceHeats();
     }
+
+    public Racer getRacerForVehicle(Vehicle vehicle) {
+        Optional<Racer> first = getRacers().stream()
+                .filter(racer -> racer.getVehicles().contains(vehicle))
+                .findFirst();
+        return first.get();
+    }
 }

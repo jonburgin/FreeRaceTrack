@@ -17,7 +17,7 @@ public class GeometricTrack  implements Track{
     Map<Integer, Point> lanes = new HashMap();
     private Point raceStartHotSpot = new Point(300, 200);
     public GeometricTrack() {
-        setLaneCount(6);
+        setLaneCount(2);
     }
 
     public GeometricTrack(int quantity, Point finishLinePosition, int width) {

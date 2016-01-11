@@ -1,5 +1,6 @@
 package net.burgin.racetrack.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
@@ -9,6 +10,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
         property = "@CLASS")
 public interface Track {
+    double DEFAULT_SCALE=1/25;
+    @JsonIgnore
+    default double getScale(){return DEFAULT_SCALE;};
     void setLaneCount(int count);
     int getLaneCount();
 }

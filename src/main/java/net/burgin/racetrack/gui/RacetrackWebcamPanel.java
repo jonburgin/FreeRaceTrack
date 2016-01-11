@@ -7,11 +7,12 @@ import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.detection.*;
 import net.burgin.racetrack.gui.adapters.RaceTrackEditorMouseAdapter;
 
-import java.util.List;
+import java.util.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.awt.RenderingHints.*;
 import static java.awt.RenderingHints.KEY_RENDERING;
@@ -22,14 +23,18 @@ import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class RacetrackWebcamPanel extends WebcamPanel implements HotSpotListener {
+public class RacetrackWebcamPanel extends WebcamPanel implements DetectionEventListener {
     Webcam webcam;
     boolean displayLanes ;
     boolean showHotSpot = true;
     boolean showRaceTime;
     private GeometricTrack geometricTrack = new GeometricTrack();
-    private HotSpotDetector oneTimeHotSpotDetector;
-    private List<Point> detectedHotSpots = new ArrayList<>();
+    private HotSpotDetector hotSpotDetector;
+    private Set<Point> detectedHotSpots = new HashSet<>();
+    double scaleX = 1;
+    double scaleY = 1;
+    int offsetX = 0;
+    int offsetY = 0;
     public RacetrackWebcamPanel(Webcam webcam) {
         this(webcam, true);
     }
@@ -48,17 +53,21 @@ public class RacetrackWebcamPanel extends WebcamPanel implements HotSpotListener
     }
 
     public void setHotSpotDetector(HotSpotDetector hotSpotDetector){
-        this.oneTimeHotSpotDetector = hotSpotDetector;
+        this.hotSpotDetector = hotSpotDetector;
         hotSpotDetector.addHotSpotListener(this);
         webcam.addWebcamListener(hotSpotDetector);
     }
-
+boolean event;
     @Override
-    public void hotSpotDetected(HotSpot hotSpot, int count) {
-        if(count <=1){
+    public void eventDetected(DetectionEvent detectionEvent) {
+        if(detectionEvent.getHotSpots().size() <=0) {
             this.detectedHotSpots.clear();
         }
-        detectedHotSpots.add(hotSpot.position);
+event =true;
+        List<Point> positions = detectionEvent.getHotSpots().stream()
+                .map(hotSpot -> hotSpot.getPosition())
+                .collect(Collectors.toList());
+        detectedHotSpots.addAll(positions);
     }
 
 
@@ -159,7 +168,6 @@ public class RacetrackWebcamPanel extends WebcamPanel implements HotSpotListener
 
         @Override
         public void paintImage(WebcamPanel owner, BufferedImage image, Graphics2D g2) {
-
             assert owner != null;
             assert image != null;
             assert g2 != null;
@@ -184,6 +192,8 @@ public class RacetrackWebcamPanel extends WebcamPanel implements HotSpotListener
             int resizedWidth = 0;
             int resizedHeight = 0;
 
+            scaleX = (double)panelWidth/imageWidth;
+            scaleY = (double)panelHeight/imageHeight;
             //this is ridiculous that there is no getDrawMode. Pull request has been submitted.
             DrawMode drawMode = (isFitArea()?DrawMode.FILL:isFillArea()?DrawMode.FILL:DrawMode.NONE);
             switch (drawMode) {
@@ -196,15 +206,15 @@ public class RacetrackWebcamPanel extends WebcamPanel implements HotSpotListener
                     resizedHeight = panelHeight;
                     break;
                 case FIT:
-                    double s = Math.max((double) imageWidth / panelWidth, (double) imageHeight / panelHeight);
-                    double niw = imageWidth / s;
-                    double nih = imageHeight / s;
-                    double dx = (panelWidth - niw) / 2;
-                    double dy = (panelHeight - nih) / 2;
-                    resizedWidth = (int) niw;
-                    resizedHeight = (int) nih;
-                    resizedX = (int) dx;
-                    resizedY = (int) dy;
+                    scaleX = scaleY = Math.min(scaleX,scaleY);
+                    double newImageWidth = imageWidth * scaleX;
+                    double newImageHeight = imageHeight * scaleY;
+                    offsetX = (int) (panelWidth - newImageWidth) / 2;
+                    offsetY = (int)(panelHeight - newImageHeight) / 2;
+                    resizedWidth = (int) newImageWidth;
+                    resizedHeight = (int) newImageHeight;
+                    resizedX = offsetX;
+                    resizedY = offsetY;
                     break;
             }
 
@@ -323,24 +333,47 @@ public class RacetrackWebcamPanel extends WebcamPanel implements HotSpotListener
         }
 
         private void drawLanes(Graphics2D g2) {
-            Point finishLinePosition = geometricTrack.getFinishLinePosition();
+            Point finishLinePosition = new Point(geometricTrack.getFinishLinePosition());
+            finishLinePosition.x = toDisplayX(finishLinePosition.x);
+            finishLinePosition.y = toDisplayY(finishLinePosition.y);
+            int transposedTrackWidth = (int)(geometricTrack.getWidth() * scaleX);
+            int xDrawOffset = (int)(10 * scaleX);
+            int yDrawOffset = (int)(10 * scaleY);
+
             geometricTrack.getLanes().keySet().stream().forEach(key -> {
                 String str = String.format("%d", key + 1);
                 FontMetrics metrics = g2.getFontMetrics(getFont());
                 Point position = geometricTrack.getLanes().get(key);
-                int stringX = position.x - metrics.stringWidth(str)/2;
-                int stringY = position.y - 20;
+                Point transPosedPosition = new Point(toDisplayX(position.x),toDisplayY(position.y));
+                int stringX = transPosedPosition.x - metrics.stringWidth(str)/2;
+                int stringY = transPosedPosition.y - (int)(2* yDrawOffset);
                 drawString(g2, str, stringX, stringY);
-                int[] xPoints = {position.x - 10, position.x, position.x + 10};
-                int [] yPoints = {position.y, position.y -10, position.y};
+                int[] xPoints = {transPosedPosition.x - xDrawOffset, transPosedPosition.x, transPosedPosition.x + xDrawOffset};
+                int [] yPoints = {transPosedPosition.y, transPosedPosition.y -yDrawOffset, transPosedPosition.y};
                 if(detectedHotSpots.contains(position))
                     g2.fillPolygon(xPoints,yPoints,3);
                 else
                     g2.drawPolygon(xPoints,yPoints,3);
             });
-            g2.drawLine(finishLinePosition.x, finishLinePosition.y, finishLinePosition.x + geometricTrack.getWidth(), finishLinePosition.y);
-            g2.drawOval(finishLinePosition.x - 10, finishLinePosition.y - 5, 10, 10);
-            g2.drawOval(finishLinePosition.x + geometricTrack.getWidth(), finishLinePosition.y - 5, 10, 10);
+            g2.drawLine(finishLinePosition.x, finishLinePosition.y, finishLinePosition.x + transposedTrackWidth, finishLinePosition.y);
+            g2.drawOval(finishLinePosition.x - xDrawOffset, finishLinePosition.y - yDrawOffset/2, xDrawOffset, yDrawOffset);
+            g2.drawOval(finishLinePosition.x + transposedTrackWidth, finishLinePosition.y - yDrawOffset/2, xDrawOffset, yDrawOffset);
+        }
+
+        public int toDisplayX(int x){
+            return (int)(x * scaleX + offsetX);
+        }
+
+        public int fromDisplayX(int x){
+            return (int) ((x - offsetX)/scaleX);
+        }
+
+        public int toDisplayY(int y){
+            return (int)(y*scaleY + offsetY);
+        }
+
+        public int fromDisplayY(int y){
+            return (int)((y-offsetY)/scaleY);
         }
 
         private void drawString(Graphics2D g2, String str, int stringX, int stringY) {
@@ -350,5 +383,6 @@ public class RacetrackWebcamPanel extends WebcamPanel implements HotSpotListener
             g2.setColor(Color.WHITE);
             g2.drawString(str, stringX, stringY);
         }
+
     }
 }

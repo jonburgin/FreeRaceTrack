@@ -26,56 +26,42 @@ public class RaceTrackFrame extends JFrame implements Runnable,
 
     @Override
     public void run() {
-
         Webcam.addDiscoveryListener(this);
-
         setTitle("Java Webcam Capture POC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-
         addWindowListener(defaultWindowListener);
-
         picker = new WebcamPicker();
         picker.setSelectedIndex(picker.getItemCount() - 1);
         picker.addItemListener(this);
-
         webcam = picker.getSelectedWebcam();
-
         if (webcam == null) {
             System.out.println("No webcams found...");
             System.exit(1);
         }
         webcam.setViewSize(WebcamResolution.VGA.getSize());
         webcam.addWebcamListener(webCamListener);
-
         panel = new RacetrackWebcamPanel(webcam, false);
+        panel.setFitArea(true);
         panel.setFPSDisplayed(true);
-
         panel.setHotSpotDetector(hotSpotDetector);
-        //panel.setMirrored(true);
         panel.setDisplayLanes(true);
         add(picker, BorderLayout.NORTH);
         add(this.panel, BorderLayout.CENTER);
+        JSpinner spinner = new JSpinner(new SpinnerNumberModel(70,1,100,2));
+        spinner.addChangeListener((event)->((OneTimeHotSpotDetector)panel.getHotSpotDetector()).setSensitivity((Integer)((JSpinner)event.getSource()).getValue()));
         JButton button = new JButton("Reset");
-        add(button, BorderLayout.SOUTH);
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                ((OneTimeHotSpotDetector)hotSpotDetector).reset();
-            }
-        });
-
+        button.addActionListener((event)->((OneTimeHotSpotDetector)hotSpotDetector).reset());
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(button);
+        buttonPanel.add(spinner);
+        add(buttonPanel, BorderLayout.SOUTH);
         pack();
         setVisible(true);
-
-        Thread t = new Thread() {
-
-            @Override
-            public void run() {
+        Thread t = new Thread(()->{
                 webcam.open(true);
                 RaceTrackFrame.this.panel.start();
-            }
-        };
+            });
         t.setName("example-starter");
         t.setDaemon(true);
         t.setUncaughtExceptionHandler(this);
@@ -86,8 +72,6 @@ public class RaceTrackFrame extends JFrame implements Runnable,
         SwingUtilities.invokeLater(new RaceTrackFrame());
     }
 
-
-
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         System.err.println(String.format("Exception in thread %s", t.getName()));
@@ -96,34 +80,26 @@ public class RaceTrackFrame extends JFrame implements Runnable,
 
     @Override
     public void itemStateChanged(ItemEvent e) {
-        if (e.getItem() != webcam) {
-            if (webcam != null) {
-                panel.stop();
-                remove(panel);
-                webcam.removeWebcamListener(webCamListener);
-                webcam.close();
-                webcam = (Webcam) e.getItem();
-                webcam.setViewSize(WebcamResolution.VGA.getSize());
-                webcam.addWebcamListener(webCamListener);
-                System.out.println("selected " + webcam.getName());
-                panel = new RacetrackWebcamPanel(webcam, false);
-                panel.setFPSDisplayed(true);
-                add(panel, BorderLayout.CENTER);
-                pack();
-                Thread t = new Thread() {
-                    @Override
-                    public void run() {
-                        panel.start();
-                    }
-                };
-                t.setName("example-stoper");
-                t.setDaemon(true);
-                t.setUncaughtExceptionHandler(this);
-                t.start();
-            }
+        if ((e.getItem() != webcam) && (webcam != null) ){
+            panel.stop();
+            remove(panel);
+            webcam.removeWebcamListener(webCamListener);
+            webcam.close();
+            webcam = (Webcam) e.getItem();
+            webcam.setViewSize(WebcamResolution.VGA.getSize());
+            webcam.addWebcamListener(webCamListener);
+            System.out.println("selected " + webcam.getName());
+            panel = new RacetrackWebcamPanel(webcam, false);
+            panel.setFPSDisplayed(true);
+            add(panel, BorderLayout.CENTER);
+            pack();
+            Thread t = new Thread(()-> panel.start());
+            t.setName("example-stoper");
+            t.setDaemon(true);
+            t.setUncaughtExceptionHandler(this);
+            t.start();
         }
     }
-
 
     @Override
     public void webcamFound(WebcamDiscoveryEvent event) {
@@ -139,27 +115,11 @@ public class RaceTrackFrame extends JFrame implements Runnable,
         }
     }
 
-    class DefaultWindowListener implements WindowListener{
-
-        @Override
-        public void windowActivated(WindowEvent e) {
-        }
+    class DefaultWindowListener extends WindowAdapter{
 
         @Override
         public void windowClosed(WindowEvent e) {
             webcam.close();
-        }
-
-        @Override
-        public void windowClosing(WindowEvent e) {
-        }
-
-        @Override
-        public void windowOpened(WindowEvent e) {
-        }
-
-        @Override
-        public void windowDeactivated(WindowEvent e) {
         }
 
         @Override
