@@ -11,11 +11,13 @@ import java.awt.*;
  */
 @Data
 public class DetectionEvent {
+    long time;
     List<HotSpot> hotSpots = new ArrayList<>();
     Image image = null;
     public DetectionEvent(){}
-    public DetectionEvent(List<HotSpot> hotSpots, Image image){
+    public DetectionEvent(long time, List<HotSpot> hotSpots, Image image){
         this();
+        this.time = time;
         this.hotSpots = hotSpots;
         this.image = image;
     }

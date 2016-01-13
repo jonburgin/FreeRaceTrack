@@ -6,11 +6,8 @@ import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.gui.adapters.WebcamAdapter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -21,26 +18,21 @@ import java.util.stream.Collectors;
 public class OneTimeHotSpotDetector extends WebcamAdapter implements HotSpotDetector {
 
     int sensitivity = 30;
-    List<HotSpot> laneHotSpots = new ArrayList<>();
+    List<HotSpot> hotSpots = new ArrayList<>();
     int detectedHotSpots = 0;
     BufferedImage image;
     List <DetectionEventListener> detectionEventListeners = new ArrayList<>();
-    boolean enabled = true;
+    boolean enabled = true;//todo is this necessary?
 
-    public void addHotSpotPoint(Point point){
-        HotSpot hotSpot = new HotSpot(point);
-        if(!laneHotSpots.contains(hotSpot))
-            laneHotSpots.add( hotSpot);
-    }
-
-    public void removeHotSpots(){
-        laneHotSpots.clear();
+    public void addHotSpot(HotSpot hotSpot){
+        if(!hotSpots.contains(hotSpot))
+            hotSpots.add( hotSpot);
     }
 
     public void reset(){
         System.out.println("resetting");
         detectedHotSpots = 0;
-        laneHotSpots.stream()
+        hotSpots.stream()
                 .forEach((hs) ->hs.reset());
         notifyDetectionEventListeners(new DetectionEvent());
     }
@@ -50,15 +42,17 @@ public class OneTimeHotSpotDetector extends WebcamAdapter implements HotSpotDete
     public void webcamImageObtained(WebcamEvent we) {
         if(!enabled)
             return;
-        if(detectedHotSpots >= laneHotSpots.size())
+        if(detectedHotSpots >= hotSpots.size())
             return;
-        BufferedImage temp = we.getImage();
-        if(temp == image){
-            return;
-        }
-        image = temp;
+//        BufferedImage temp = we.getImage();
+//        if(temp == image){
+//            return;
+//        }
+//        image = temp;
+        image = we.getImage();
         boolean foundOne = false;
-        for (HotSpot hotSpot: laneHotSpots) {
+        long currentTime = System.currentTimeMillis();
+        for (HotSpot hotSpot: hotSpots) {
             if (hotSpot.detected)
                 continue;
             int currentPixel = image.getRGB(hotSpot.position.x, hotSpot.position.y);
@@ -71,14 +65,14 @@ public class OneTimeHotSpotDetector extends WebcamAdapter implements HotSpotDete
                 detectedHotSpots++;
                 hotSpot.detected = true;
                 foundOne = true;
-                System.out.println("hotspot detected at " + (laneHotSpots.indexOf(hotSpot) + 1));
+                System.out.println("hotspot detected at " + (hotSpots.indexOf(hotSpot) + 1));
             }
         }
         if(foundOne){
-            List<HotSpot> detectedHotSpots = laneHotSpots.stream()
+            List<HotSpot> detectedHotSpots = hotSpots.stream()
                     .filter(hotSpot -> hotSpot.isDetected())
                     .collect(Collectors.toList());
-            notifyDetectionEventListeners(new DetectionEvent(detectedHotSpots,image));
+            notifyDetectionEventListeners(new DetectionEvent(currentTime, detectedHotSpots,image));
         }
 
     }

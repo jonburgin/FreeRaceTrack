@@ -5,6 +5,7 @@ import com.github.sarxos.webcam.WebcamPanel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.detection.*;
+import net.burgin.racetrack.domain.Track;
 import net.burgin.racetrack.gui.adapters.RaceTrackEditorMouseAdapter;
 
 import java.util.*;
@@ -23,25 +24,17 @@ import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class RacetrackWebcamPanel extends WebcamPanel implements DetectionEventListener {
+public class RacetrackWebcamPanel extends WebcamPanel {
     Webcam webcam;
     boolean displayLanes ;
     boolean showHotSpot = true;
     boolean showRaceTime;
-    private GeometricTrack geometricTrack = new GeometricTrack();
+    private HotSpotTrack hotSpotTrack = new HotSpotTrack();
     private HotSpotDetector hotSpotDetector;
-    private Set<Point> detectedHotSpots = new HashSet<>();
     double scaleX = 1;
     double scaleY = 1;
     int offsetX = 0;
     int offsetY = 0;
-    public RacetrackWebcamPanel(Webcam webcam) {
-        this(webcam, true);
-    }
-
-    public RacetrackWebcamPanel(Webcam webcam, boolean start) {
-        this(webcam, null, start);
-    }
 
     public RacetrackWebcamPanel(Webcam webcam, Dimension size, boolean start) {
         super(webcam, size, start);
@@ -54,22 +47,8 @@ public class RacetrackWebcamPanel extends WebcamPanel implements DetectionEventL
 
     public void setHotSpotDetector(HotSpotDetector hotSpotDetector){
         this.hotSpotDetector = hotSpotDetector;
-        hotSpotDetector.addHotSpotListener(this);
         webcam.addWebcamListener(hotSpotDetector);
     }
-boolean event;
-    @Override
-    public void eventDetected(DetectionEvent detectionEvent) {
-        if(detectionEvent.getHotSpots().size() <=0) {
-            this.detectedHotSpots.clear();
-        }
-event =true;
-        List<Point> positions = detectionEvent.getHotSpots().stream()
-                .map(hotSpot -> hotSpot.getPosition())
-                .collect(Collectors.toList());
-        detectedHotSpots.addAll(positions);
-    }
-
 
     /**
      * Default painter used to draw image in panel.
@@ -315,12 +294,14 @@ event =true;
             }
 
             if(showHotSpot){
+                //todo transpose the position!!!
                 g2.setColor(Color.WHITE);
-                g2.drawOval(geometricTrack.getRaceStartHotSpot().x-10, geometricTrack.getRaceStartHotSpot().y-10, 20,20);
+                Point position = hotSpotTrack.getRaceStartHotSpot().getPosition();
+                g2.drawOval(position.x-10, position.y-10, 20,20);
                 String s = "Start HotSpot";
                 FontMetrics metrics = g2.getFontMetrics(getFont());
-                int stringX = geometricTrack.getRaceStartHotSpot().x - metrics.stringWidth(s)/2;
-                int stringY = geometricTrack.getRaceStartHotSpot().y + metrics.getHeight() + 5;
+                int stringX = position.x - metrics.stringWidth(s)/2;
+                int stringY = position.y + metrics.getHeight() + 5;
                 drawString(g2, s,stringX, stringY);
             }
 
@@ -333,24 +314,25 @@ event =true;
         }
 
         private void drawLanes(Graphics2D g2) {
-            Point finishLinePosition = new Point(geometricTrack.getFinishLinePosition());
+            Point finishLinePosition = new Point(hotSpotTrack.getFinishLinePosition());
             finishLinePosition.x = toDisplayX(finishLinePosition.x);
             finishLinePosition.y = toDisplayY(finishLinePosition.y);
-            int transposedTrackWidth = (int)(geometricTrack.getWidth() * scaleX);
+            int transposedTrackWidth = (int)(hotSpotTrack.getWidth() * scaleX);
             int xDrawOffset = (int)(10 * scaleX);
             int yDrawOffset = (int)(10 * scaleY);
 
-            geometricTrack.getLanes().keySet().stream().forEach(key -> {
+            hotSpotTrack.getLanes().keySet().stream().forEach(key -> {
                 String str = String.format("%d", key + 1);
                 FontMetrics metrics = g2.getFontMetrics(getFont());
-                Point position = geometricTrack.getLanes().get(key);
+                HotSpot hotSpot = hotSpotTrack.getLanes().get(key);
+                Point position = hotSpot.getPosition();
                 Point transPosedPosition = new Point(toDisplayX(position.x),toDisplayY(position.y));
                 int stringX = transPosedPosition.x - metrics.stringWidth(str)/2;
                 int stringY = transPosedPosition.y - (int)(2* yDrawOffset);
                 drawString(g2, str, stringX, stringY);
                 int[] xPoints = {transPosedPosition.x - xDrawOffset, transPosedPosition.x, transPosedPosition.x + xDrawOffset};
                 int [] yPoints = {transPosedPosition.y, transPosedPosition.y -yDrawOffset, transPosedPosition.y};
-                if(detectedHotSpots.contains(position))
+                if(hotSpot.isDetected())
                     g2.fillPolygon(xPoints,yPoints,3);
                 else
                     g2.drawPolygon(xPoints,yPoints,3);

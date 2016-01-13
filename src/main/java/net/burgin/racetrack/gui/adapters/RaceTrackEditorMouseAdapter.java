@@ -1,12 +1,14 @@
 package net.burgin.racetrack.gui.adapters;
 
+import net.burgin.racetrack.detection.HotSpot;
 import net.burgin.racetrack.detection.HotSpotDetector;
-import net.burgin.racetrack.detection.GeometricTrack;
+import net.burgin.racetrack.detection.HotSpotTrack;
 import net.burgin.racetrack.gui.RacetrackWebcamPanel;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 /**
  * Created by jonburgin on 12/2/15.
@@ -26,30 +28,30 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
     public void mouseDragged(MouseEvent mouseEvent) {
         RacetrackWebcamPanel.MyPainter painter = (RacetrackWebcamPanel.MyPainter) racetrackWebcamPanel.getPainter();
         if(hotSpotPositioning){
-            Point hotSpot = racetrackWebcamPanel.getGeometricTrack().getRaceStartHotSpot();
-            hotSpot.move(painter.fromDisplayX(mouseEvent.getX()),painter.fromDisplayY(mouseEvent.getY()));
+            HotSpot hotSpot = racetrackWebcamPanel.getHotSpotTrack().getRaceStartHotSpot();
+            hotSpot.getPosition().move(painter.fromDisplayX(mouseEvent.getX()),painter.fromDisplayY(mouseEvent.getY()));
         }
         if(trackPositioning){
-            racetrackWebcamPanel.getGeometricTrack()
+            racetrackWebcamPanel.getHotSpotTrack()
                     .setFinishLinePosition(new Point(painter.fromDisplayX(mouseEvent.getX()), painter.fromDisplayY(mouseEvent.getY())));
         }
         if(trackStretching){
-            racetrackWebcamPanel.getGeometricTrack()
+            racetrackWebcamPanel.getHotSpotTrack()
                     .adjustWidth(new Point(painter.fromDisplayX(mouseEvent.getX()), painter.fromDisplayY(mouseEvent.getY())));
         }
     }
 
     @Override
     public void mouseMoved(MouseEvent mouseEvent) {
-        Point hotSpot = racetrackWebcamPanel.getGeometricTrack().getRaceStartHotSpot();
-        boolean insideHotspot = closeEnough(mouseEvent,hotSpot,20);
-        Point trackMovePoint = racetrackWebcamPanel.getGeometricTrack().getMoveHotSpot();
+        HotSpot hotSpot = racetrackWebcamPanel.getHotSpotTrack().getRaceStartHotSpot();
+        boolean insideHotspot = closeEnough(mouseEvent,hotSpot.getPosition(),20);
+        Point trackMovePoint = racetrackWebcamPanel.getHotSpotTrack().getMoveHotSpot();
         boolean insideTrackMove = closeEnough(mouseEvent,trackMovePoint,10);
         if(insideHotspot || insideTrackMove){
             setCursorType(Cursor.MOVE_CURSOR);
             return;
         }
-        Point trackStretchPoint = racetrackWebcamPanel.getGeometricTrack().getStretchHotSpot();
+        Point trackStretchPoint = racetrackWebcamPanel.getHotSpotTrack().getStretchHotSpot();
         boolean insideTrackStretch = closeEnough(mouseEvent,trackStretchPoint, 20);
         if(insideTrackStretch){
             setCursorType(Cursor.E_RESIZE_CURSOR);
@@ -73,12 +75,12 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent mouseEvent) {
-        Point hotSpot = racetrackWebcamPanel.getGeometricTrack().getRaceStartHotSpot();
-        if(closeEnough(mouseEvent,hotSpot,20)){
+        HotSpot hotSpot = racetrackWebcamPanel.getHotSpotTrack().getRaceStartHotSpot();
+        if(closeEnough(mouseEvent,hotSpot.getPosition(),20)){
             hotSpotPositioning = true;
-        }else if(closeEnough(mouseEvent,racetrackWebcamPanel.getGeometricTrack().getMoveHotSpot(), 10)){
+        }else if(closeEnough(mouseEvent,racetrackWebcamPanel.getHotSpotTrack().getMoveHotSpot(), 10)){
             trackPositioning = true;
-        }else if(closeEnough(mouseEvent,racetrackWebcamPanel.getGeometricTrack().getStretchHotSpot(),10)){
+        }else if(closeEnough(mouseEvent,racetrackWebcamPanel.getHotSpotTrack().getStretchHotSpot(),10)){
             trackStretching = true;
         }
         if(trackPositioning || trackStretching || hotSpotPositioning){
@@ -101,10 +103,9 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
         trackPositioning = false;
         trackStretching = false;
         HotSpotDetector hotSpotDetector = racetrackWebcamPanel.getHotSpotDetector();
-        GeometricTrack geometricTrack = racetrackWebcamPanel.getGeometricTrack();
-        hotSpotDetector.removeHotSpots();
-        geometricTrack.getLanes().values().stream().forEach(point -> hotSpotDetector.addHotSpotPoint(point));
-        hotSpotDetector.addHotSpotPoint(geometricTrack.getRaceStartHotSpot());
+        HotSpotTrack hotSpotTrack = racetrackWebcamPanel.getHotSpotTrack();
+        hotSpotDetector.setHotSpots(new ArrayList<>(hotSpotTrack.getLanes().values()));
+        hotSpotDetector.addHotSpot(hotSpotTrack.getRaceStartHotSpot());
         hotSpotDetector.setEnabled(true);
     }
 }

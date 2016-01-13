@@ -11,16 +11,17 @@ import java.util.List;
  * Created by jonburgin on 12/2/15.
  */
 @Data
-public class GeometricTrack  implements Track{
-    Point finishLinePosition = new Point(20, 200);
-    int width = 200;
-    Map<Integer, Point> lanes = new HashMap();
-    private Point raceStartHotSpot = new Point(300, 200);
-    public GeometricTrack() {
+public class HotSpotTrack implements Track{
+    private Point finishLinePosition = new Point(20, 200);
+    private int width = 200;
+    private Map<Integer, HotSpot> lanes = new HashMap();
+    private HotSpot raceStartHotSpot = new HotSpot(-1,new Point(300, 200));
+
+    public HotSpotTrack() {
         setLaneCount(2);
     }
 
-    public GeometricTrack(int quantity, Point finishLinePosition, int width) {
+    public HotSpotTrack(int quantity, Point finishLinePosition, int width) {
         setLaneCount(quantity);
         this.finishLinePosition = finishLinePosition;
         this.width = width;
@@ -30,7 +31,7 @@ public class GeometricTrack  implements Track{
         lanes.clear();
         int division = width / (quantity + 1);
         for(int i=0; i < quantity; i++){
-            lanes.put(i,new Point(finishLinePosition.x + (i+1)* division, finishLinePosition.y));
+            lanes.put(i,new HotSpot(i,new Point(finishLinePosition.x + (i+1)* division, finishLinePosition.y)));
         }
     }
 
@@ -41,10 +42,6 @@ public class GeometricTrack  implements Track{
 
     public int getLaneCount(){
         return lanes.size();
-    }
-
-    public Optional<Integer> getLaneNumber(Point point) {
-       return lanes.keySet().stream().filter(k->lanes.get(k).equals(point)).findFirst();
     }
 
     public Point getMoveHotSpot(){

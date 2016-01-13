@@ -11,16 +11,21 @@ import java.awt.*;
 @Data
 public class HotSpot {
     @NonNull
-    public Point position;
-    public boolean detected;
-    public boolean needsInitialization = true;
-    public int pixel;
-    public HotSpot(Point position){
-        setPosition(position);
+    int lane;
+    Point position;
+    boolean detected;
+    boolean needsInitialization = true;
+    int pixel;
+    public HotSpot(int lane, Point position){
+        this.lane = lane;
+        this.position = position;
     }
 
     public boolean equals(Object object){
-        return (object instanceof HotSpot) && (((HotSpot)object).getPosition().equals(position));
+        if(!(object instanceof  HotSpot))
+            return false;
+        HotSpot other = (HotSpot)object;
+        return position.equals(other.getPosition()) && lane == other.getLane();
     }
 
     public void reset(){
@@ -29,5 +34,5 @@ public class HotSpot {
     }
     public int HashCode(){
         return position.hashCode();
-    }
+    }//todo need to combine lane here
 }
