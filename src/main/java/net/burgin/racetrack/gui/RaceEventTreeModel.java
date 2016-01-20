@@ -32,27 +32,26 @@ public class RaceEventTreeModel implements TreeModel, RaceEventChangeListener{
 
     @Override
     public Object getChild(Object parent, int i) {
-        if(parent == raceEvent){
-            return (i >= 0) && (i < raceEvent.getRaces().size())?raceEvent.getRaces().get(i):null;
-        }
-        if(!(parent instanceof DefaultRunoffRace))
+        if(i < 0)
             return null;
-        List<Race> childRaces = ((DefaultRunoffRace) parent).getRaces();
-        return (i >= 0) && (i < childRaces.size())? childRaces.get(i):null;
+        if(parent instanceof RaceParent){
+            List<Race> children = ((RaceParent) parent).getRaces();
+            return (i < children.size())?children.get(i):null;
+        }
+        return null;//not a raceParent
     }
 
     @Override
     public int getChildCount(Object parent) {
-        if(parent == raceEvent)
-            return raceEvent.getRaces().size();
-        if(parent instanceof DefaultRunoffRace)
-            return ((DefaultRunoffRace)parent).getRaces().size();
+        if(parent instanceof RaceParent) {
+            return ((RaceParent) parent).getRaces().size();
+        }
         return 0;
     }
 
     @Override
     public boolean isLeaf(Object o) {
-        return o instanceof DefaultSimpleRace && !(o instanceof DefaultRunoffRace);
+        return o instanceof SimpleRace;
     }
 
     @Override
@@ -62,9 +61,10 @@ public class RaceEventTreeModel implements TreeModel, RaceEventChangeListener{
 
     @Override
     public int getIndexOfChild(Object parent, Object child) {
-        if(parent == null || child == null || !(parent instanceof RaceParent) || !(child instanceof DefaultSimpleRace))
-            return -1;
-        return ((RaceParent)parent).indexOf((DefaultSimpleRace)child);
+        if(parent instanceof RaceParent) {
+            return ((RaceParent) parent).getRaces().indexOf(child);
+        }
+        return -1;
     }
 
     @Override

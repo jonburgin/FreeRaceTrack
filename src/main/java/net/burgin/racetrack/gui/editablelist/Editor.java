@@ -8,4 +8,5 @@ public interface Editor<T> {
     void edit(T t);
     void addEditUpdateListener(EditUpdateListener listener);
     void removeEditUpdateListener(EditUpdateListener listener);
+    T getT();
 }

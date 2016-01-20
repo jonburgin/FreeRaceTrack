@@ -2,7 +2,6 @@ package net.burgin.racetrack.gui;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.*;
 
 import javax.swing.*;
@@ -47,12 +46,12 @@ public class PrepPanel extends JPanel {
         JLabel label = new JLabel("Lane " + i);
         label.setFont(label.getFont().deriveFont(24f));
         panel.add(label, c);
-        Racer racer = raceEvent.getRacerForVehicle(vehicle);
-        panel.add(new JLabel( RaceTrackImageUtils.getImage(racer)),c);
-        label = new JLabel(racer.getFirstName() + " " + racer.getLastName());
+        Participant participant = raceEvent.getRacerForVehicle(vehicle);
+        panel.add(new JLabel( RaceTrackImageUtils.getImageIcon(participant)),c);
+        label = new JLabel(participant.getFirstName() + " " + participant.getLastName());
         label.setFont(label.getFont().deriveFont(24f));
         panel.add(label,c);
-        panel.add(new JLabel( RaceTrackImageUtils.getImage(vehicle)),c);
+        panel.add(new JLabel( RaceTrackImageUtils.getImageIcon(vehicle)),c);
         label = new JLabel(vehicle.toString());
         label.setFont(label.getFont().deriveFont(24f));
         panel.add(label, c);
@@ -61,13 +60,13 @@ public class PrepPanel extends JPanel {
 
     static public void main(String[] args){
         RaceEvent event = new RaceEvent();
-        Racer r1 = new Racer("Freedom", "Burgin");
-        Racer r2 = new Racer("Glory", "Burgin");
+        Participant r1 = new Participant("Freedom", "Burgin");
+        Participant r2 = new Participant("Glory", "Burgin");
         Vehicle v1 = new Vehicle("Dominator", "Wolf");
         Vehicle v2 = new Vehicle("Killer", "Cow");
         r1.getVehicles().add(v1);
         r2.getVehicles().add(v2);
-        event.setRacers(Arrays.asList(r1,r2));
+        event.setParticipants(Arrays.asList(r1,r2));
         Heat heat = new Heat(new DefaultSimpleRace(), Arrays.asList(v1,v2));
         JFrame foo = new JFrame("Foo");
         PrepPanel prepPanel = new PrepPanel(event,heat);

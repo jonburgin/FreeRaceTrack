@@ -3,12 +3,21 @@ package net.burgin.racetrack.gui.participants;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.RaceTrackResourceBundle;
+import net.burgin.racetrack.domain.RaceEvent;
 import net.burgin.racetrack.domain.Vehicle;
+import net.burgin.racetrack.gui.GreenScreenPicturePanel;
+import net.burgin.racetrack.gui.RaceTrackImageUtils;
+import net.burgin.racetrack.gui.adapters.EditPanelPictureTakerAdapter;
 import net.burgin.racetrack.gui.editablelist.AbstractEditPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Vector;
 
 /**
  * Created by jonburgin on 12/16/15.
@@ -16,15 +25,17 @@ import java.awt.event.ItemEvent;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class VehicleEditPanel extends AbstractEditPanel<Vehicle> {
+    private final RaceEvent raceEvent;
     private JTextField nameTextField;
     JComboBox<String> raceClassComboBox;
     String photoTitle;
     String nameTitle;
-    ImageIcon vehicleImageIcon = new ImageIcon(ClassLoader.getSystemClassLoader().getSystemResource("images/pinewood-derby2.jpg"));
+    JLabel vehicleImageLabel = new JLabel();
     private String vehicleTitle;
     private String vehicleRaceClassificationTitle;
 
-    public VehicleEditPanel(){
+    public VehicleEditPanel(RaceEvent raceEvent){
+        this.raceEvent = raceEvent;
         createT();
         loadResources();
         buildGui();
@@ -42,8 +53,9 @@ public class VehicleEditPanel extends AbstractEditPanel<Vehicle> {
         c.fill = GridBagConstraints.BOTH;
         c.weightx=1;
         c.weighty=1;
-        JLabel jLabel = new JLabel(vehicleImageIcon);
-        add(jLabel,c);
+        vehicleImageLabel.setIcon(RaceTrackImageUtils.getImageIcon(t));
+        vehicleImageLabel.addMouseListener(new EditPanelPictureTakerAdapter(this,vehicleImageLabel));
+        add(vehicleImageLabel,c);
     }
 
     private JComponent buildNamePanel() {
@@ -68,7 +80,7 @@ public class VehicleEditPanel extends AbstractEditPanel<Vehicle> {
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.HORIZONTAL;
         //todo dropdown for classification properly
-        raceClassComboBox = new JComboBox<>(new String[]{"Tiger", "Wolf", "Web I", "Web II"});
+        raceClassComboBox = new JComboBox<>(new Vector<>(raceEvent.getCompetitionClasses()));
         raceClassComboBox.addItemListener(itemEvent-> {
                 if(itemEvent.getStateChange()==ItemEvent.SELECTED)
                     dirty = true;
@@ -77,13 +89,6 @@ public class VehicleEditPanel extends AbstractEditPanel<Vehicle> {
             });
         panel.add(raceClassComboBox,c);
         return panel;
-    }
-
-    JComponent buildImagePanel(){
-        JPanel imagePanel = new JPanel();
-        imagePanel.setBorder(BorderFactory.createTitledBorder(photoTitle));
-        imagePanel.add(new JLabel(vehicleImageIcon));
-        return imagePanel;
     }
 
     void loadResources() {
@@ -105,9 +110,10 @@ public class VehicleEditPanel extends AbstractEditPanel<Vehicle> {
     }
 
     @Override
-    protected void populateFields(Vehicle vehicle){
-        nameTextField.setText(vehicle.getName());
-        String competitionClass = vehicle.getCompetitionClass();
+    protected void populateFields(){
+        vehicleImageLabel.setIcon(RaceTrackImageUtils.getImageIcon(t));
+        nameTextField.setText(t.getName());
+        String competitionClass = t.getCompetitionClass();
         if(competitionClass !=null && competitionClass.length()>0)
             raceClassComboBox.setSelectedItem(competitionClass);
     }

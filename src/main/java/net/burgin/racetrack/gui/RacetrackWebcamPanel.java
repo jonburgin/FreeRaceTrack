@@ -5,15 +5,11 @@ import com.github.sarxos.webcam.WebcamPanel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.detection.*;
-import net.burgin.racetrack.domain.Track;
 import net.burgin.racetrack.gui.adapters.RaceTrackEditorMouseAdapter;
 
 import java.util.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static java.awt.RenderingHints.*;
 import static java.awt.RenderingHints.KEY_RENDERING;
@@ -36,10 +32,18 @@ public class RacetrackWebcamPanel extends WebcamPanel {
     int offsetX = 0;
     int offsetY = 0;
 
+    public RacetrackWebcamPanel(Webcam webcam) {
+        this(webcam, true);
+    }
+
+    public RacetrackWebcamPanel(Webcam webcam, boolean start) {
+        this(webcam, null, start);
+    }
+
     public RacetrackWebcamPanel(Webcam webcam, Dimension size, boolean start) {
         super(webcam, size, start);
         this.webcam = webcam;
-        setPainter(new MyPainter());
+        setPainter(new RacetrackPainter());
         RaceTrackEditorMouseAdapter mouseListener = new RaceTrackEditorMouseAdapter(this);
         addMouseListener(mouseListener);
         addMouseMotionListener(mouseListener);
@@ -50,13 +54,7 @@ public class RacetrackWebcamPanel extends WebcamPanel {
         webcam.addWebcamListener(hotSpotDetector);
     }
 
-    /**
-     * Default painter used to draw image in panel.
-     *
-     * @author Bartosz Firyn (SarXos)
-     * @author Sylwia Kauczor
-     */
-    public class MyPainter implements Painter {
+    public class RacetrackPainter implements Painter {
 
         /**
          * Webcam device name.

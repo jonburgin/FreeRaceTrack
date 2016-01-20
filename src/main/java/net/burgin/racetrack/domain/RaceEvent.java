@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 @Data
 @EqualsAndHashCode(callSuper=true,exclude = "heatGenerator")
 public class RaceEvent extends AbstractRaceParent {
-    Set<String> competitionClasses = new HashSet<>();
-    List<Racer> racers = new ArrayList<>();
+    List<String> competitionClasses = new ArrayList<>();
+    List<Participant> participants = new ArrayList<>();
     Track track = new DefaultTrack(6);//todo remove this
     @JsonIgnore
     HeatGenerator heatGenerator = new DefaultHeatGenerator(this);
@@ -45,8 +45,8 @@ public class RaceEvent extends AbstractRaceParent {
 
     @JsonIgnore
     public List<Vehicle> getVehicles(){
-        return racers.stream()
-                .map(Racer::getVehicles)
+        return participants.stream()
+                .map(Participant::getVehicles)
                 .flatMap(List::stream)
                 .filter(car -> competitionClasses.contains(car.getCompetitionClass()))
                 .collect(Collectors.toList());
@@ -54,7 +54,7 @@ public class RaceEvent extends AbstractRaceParent {
 
     @JsonIgnore
     public List<Vehicle> getVehicles(SimpleRace simpleRace){
-        Set<String> competionClasses = simpleRace.getCompetitionClasses();
+        List<String> competionClasses = simpleRace.getCompetitionClasses();
         return getVehicles().stream()
                 .filter(car -> competionClasses.contains(car.getCompetitionClass()))
                 .collect(Collectors.toList());
@@ -93,8 +93,8 @@ public class RaceEvent extends AbstractRaceParent {
         heatGenerator.generateAllRaceHeats();
     }
 
-    public Racer getRacerForVehicle(Vehicle vehicle) {
-        Optional<Racer> first = getRacers().stream()
+    public Participant getRacerForVehicle(Vehicle vehicle) {
+        Optional<Participant> first = this.getParticipants().stream()
                 .filter(racer -> racer.getVehicles().contains(vehicle))
                 .findFirst();
         return first.get();

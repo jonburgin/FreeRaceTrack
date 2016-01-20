@@ -28,11 +28,11 @@ public class DefaultRunoffRace extends AbstractRaceParent implements RunoffRace{
 
     @JsonIgnore
     @Override
-    public Set<String> getCompetitionClasses(){
+    public List<String> getCompetitionClasses(){
         return races.stream()
                 .map(Race::getCompetitionClasses)
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     public String toString(){

@@ -49,7 +49,7 @@ abstract public class AbstractEditPanel<T> extends JPanel implements Editor<T> {
     }
 
     protected abstract void populateT();
-    protected abstract void populateFields(T t);
+    protected abstract void populateFields();
     protected abstract void createT();
 
     @Override
@@ -60,7 +60,7 @@ abstract public class AbstractEditPanel<T> extends JPanel implements Editor<T> {
         if(this.t == null) {
             createT();
         }
-        populateFields(this.t);
+        populateFields();
     }
 
     protected void notifyEditUpdateListeners(){

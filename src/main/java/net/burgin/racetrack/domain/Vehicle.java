@@ -8,21 +8,18 @@ import lombok.Setter;
 import org.bridj.cpp.com.GUID;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.UUID;
 
 /**
  * Created by jonburgin on 12/2/15.
  */
-@Getter
-@Setter
-@EqualsAndHashCode(exclude="image")
-public class Vehicle {
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class Vehicle extends AbstractImageHolder{
     private int id;
-    UUID uuid = UUID.randomUUID();
     String name = "";
     String competitionClass = "";
-    @JsonIgnore
-    Image image;
 
     public Vehicle(){}
 
@@ -33,7 +30,7 @@ public class Vehicle {
     }
 
     public String toString(){
-        return String.format("%s (%s)",name, competitionClass).toString();
+        return String.format("%02d:%s (%s)",id,name, competitionClass).toString();
     }
 
 }

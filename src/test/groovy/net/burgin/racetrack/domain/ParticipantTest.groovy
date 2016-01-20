@@ -7,9 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import spock.lang.Shared
 import spock.lang.Specification
 
-class RacerTest extends Specification{
+class ParticipantTest extends Specification{
     @Shared
-    def racer = new Racer("Jon", "Burgin")
+    def racer = new Participant("Jon", "Burgin")
     @Shared
     def mapper = new ObjectMapper()
 
@@ -19,7 +19,7 @@ class RacerTest extends Specification{
 
     def "Json serializatin/deserialization is correct"(){
         when:
-        def racerRead = mapper.readValue(mapper.writeValueAsString(racer), Racer.class)
+        def racerRead = mapper.readValue(mapper.writeValueAsString(racer), Participant.class)
         then:
         racerRead.firstName == "Jon"
         racerRead.lastName == "Burgin"

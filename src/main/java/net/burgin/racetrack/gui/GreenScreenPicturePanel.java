@@ -22,19 +22,32 @@ public class GreenScreenPicturePanel extends JPanel{
     public GreenScreenPicturePanel(){
         picker = new WebcamPicker();
         picker.setSelectedIndex(picker.getItemCount() - 1);
-        // picker.addItemListener(this);
         webcam = picker.getSelectedWebcam();
         if (webcam == null) {
             System.out.println("No webcams found...");
             System.exit(1);
         }
-
-        //webcam.addWebcamListener(webCamListener);
-        webcam.setViewSize(WebcamResolution.VGA.getSize());
+        webcam.setViewSize(WebcamResolution.QVGA.getSize());
         webcamPanel = new WebcamPanel(webcam,true);
         buildGui();
     }
 
+    static public BufferedImage takePhoto(JFrame parent){
+        GreenScreenPicturePanel picturePanel = new GreenScreenPicturePanel();
+        JOptionPane pane = new JOptionPane(picturePanel);
+        pane.setOptionType(JOptionPane.OK_CANCEL_OPTION);
+        JDialog dialog = pane.createDialog(parent, "Take Picture");
+        dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+        dialog.setVisible(true);
+        picturePanel.webcamPanel.getWebcam().close();
+        Object option = pane.getValue();
+        boolean usePicture = option instanceof Integer && ((Integer)option).intValue() == JOptionPane.OK_OPTION;
+        return usePicture?picturePanel.getImage():null;
+    }
+
+    public BufferedImage getImage(){
+        return (BufferedImage)((ImageIcon)pictureLabel.getIcon()).getImage();
+    }
     private void buildGui() {
         setLayout(new GridLayout(1,2));
         add(buildCameraPanel());
@@ -85,9 +98,6 @@ public class GreenScreenPicturePanel extends JPanel{
         int [] sampleRgb = getRGB(image.getRGB(image.getWidth()/2,0));
         float[] sampleHsb = Color.RGBtoHSB(sampleRgb[0], sampleRgb[1], sampleRgb[2], null);
         float sampleHue = sampleHsb[0];
-
-        System.out.println(sampleHue);
-        float tolerance = .001f;
         for(int x=0; x < image.getWidth(); x++)
             for(int y=0; y < image.getHeight(); y++){
                 int newPixel = newImage.getRGB(x,y) & 0x00ffffff;

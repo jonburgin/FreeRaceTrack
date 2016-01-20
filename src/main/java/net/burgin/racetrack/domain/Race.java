@@ -16,7 +16,7 @@ import java.util.UUID;
         property = "@CLASS")
 public interface Race extends RaceEventChangeNotifier{
     String getName();
-    Set<String> getCompetitionClasses();
+    List<String> getCompetitionClasses();
     @Nullable
     List<Heat> getHeats();
     boolean hasHeats();

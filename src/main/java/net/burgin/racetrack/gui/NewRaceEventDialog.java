@@ -56,7 +56,7 @@ public class NewRaceEventDialog extends JDialog {
         }
         raceEvent.setName(eventName);
         NewRaceEventDialog.this.setVisible(false);
-        FreeRaceTrack.getInstance().addRaceEvent(raceEvent);
+        FreeRaceTrack.getInstance().addRaceEvent(raceEvent,null);
     }
 
     private class TextFieldEntryAction extends AbstractAction{

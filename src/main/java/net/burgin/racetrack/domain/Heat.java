@@ -39,7 +39,7 @@ public class Heat implements DetectionEventListener{
 
     public String toString(){
         return competitors.stream()
-                .map(competitor -> competitor.getVehicle().getName())
+                .map(competitor -> competitor.getVehicle().toString())
                 .collect(Collectors.joining("', '", name + " ['", "']"));
     }
 

@@ -1,5 +1,7 @@
 package net.burgin.racetrack.gui;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.RaceEvent;
 import net.burgin.racetrack.gui.actions.*;
@@ -11,6 +13,8 @@ import java.util.ResourceBundle;
 /**
  * Created by jonburgin on 12/4/15.
  */
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class FreeRaceTrack extends JFrame implements Runnable {
 
     static FreeRaceTrack instance;
@@ -41,9 +45,9 @@ public class FreeRaceTrack extends JFrame implements Runnable {
     private JMenu buildFileMenu() {
         JMenu menu = new JMenu(new FileAction());
         menu.add(new FileNewAction());
-        menu.add(new FileOpenAction());
-        menu.add(new FileSaveAction());
-        menu.add(new FileSaveAsAction());
+        menu.add(new FileOpenAction(this));
+        menu.add(new FileSaveAction(this));
+        menu.add(new FileSaveAsAction(this));
         menu.add(new ExitAction());
         return  menu;
     }
@@ -53,8 +57,9 @@ public class FreeRaceTrack extends JFrame implements Runnable {
         SwingUtilities.invokeLater(instance);
     }
 
-    public void addRaceEvent(RaceEvent raceEvent) {
+    public void addRaceEvent(RaceEvent raceEvent, String path) {
         EventInternalFrame eventInternalFrame = new EventInternalFrame(raceEvent);
+        eventInternalFrame.setFilePath(path);
         eventInternalFrame.setTitle(raceEvent.getName());
         eventInternalFrame.setSize(this.getContentPane().getSize());
         desktopPane.add(eventInternalFrame);

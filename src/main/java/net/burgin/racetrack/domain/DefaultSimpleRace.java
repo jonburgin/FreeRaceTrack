@@ -13,7 +13,7 @@ import java.util.*;
 @EqualsAndHashCode(callSuper = true)
 public class DefaultSimpleRace extends AbstractRace implements SimpleRace{
 
-    Set<String> competitionClasses = new HashSet<>();
+    List<String> competitionClasses = new ArrayList<>();
     /**
      * if true, this allows for cars of different competition classes to race together, but not actually compete against each other
      */

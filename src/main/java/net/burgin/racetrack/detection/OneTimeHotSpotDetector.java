@@ -44,7 +44,7 @@ public class OneTimeHotSpotDetector extends WebcamAdapter implements HotSpotDete
             return;
         if(detectedHotSpots >= hotSpots.size())
             return;
-//        BufferedImage temp = we.getImage();
+//        BufferedImage temp = we.getImageIcon();
 //        if(temp == image){
 //            return;
 //        }

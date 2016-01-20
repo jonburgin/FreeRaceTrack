@@ -26,7 +26,7 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
 
     @Override
     public void mouseDragged(MouseEvent mouseEvent) {
-        RacetrackWebcamPanel.MyPainter painter = (RacetrackWebcamPanel.MyPainter) racetrackWebcamPanel.getPainter();
+        RacetrackWebcamPanel.RacetrackPainter painter = (RacetrackWebcamPanel.RacetrackPainter) racetrackWebcamPanel.getPainter();
         if(hotSpotPositioning){
             HotSpot hotSpot = racetrackWebcamPanel.getHotSpotTrack().getRaceStartHotSpot();
             hotSpot.getPosition().move(painter.fromDisplayX(mouseEvent.getX()),painter.fromDisplayY(mouseEvent.getY()));
@@ -62,7 +62,7 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
     }
 
     private boolean closeEnough(MouseEvent mouseEvent, Point p, int diameter){
-        RacetrackWebcamPanel.MyPainter painter = (RacetrackWebcamPanel.MyPainter) racetrackWebcamPanel.getPainter();
+        RacetrackWebcamPanel.RacetrackPainter painter = (RacetrackWebcamPanel.RacetrackPainter) racetrackWebcamPanel.getPainter();
         //todo need to do reverse transposition
         return Math.abs(painter.fromDisplayX(mouseEvent.getX()) - p.x) < diameter && Math.abs(painter.fromDisplayY(mouseEvent.getY()) - p.y)< diameter;
     }
