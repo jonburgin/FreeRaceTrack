@@ -1,7 +1,7 @@
 package net.burgin.racetrack.gui.adapters;
 
 import net.burgin.racetrack.domain.ImageHolder;
-import net.burgin.racetrack.gui.GreenScreenPicturePanel;
+import net.burgin.racetrack.gui.participants.GreenScreenPicturePanel;
 import net.burgin.racetrack.gui.RaceTrackImageUtils;
 import net.burgin.racetrack.gui.editablelist.Editor;
 

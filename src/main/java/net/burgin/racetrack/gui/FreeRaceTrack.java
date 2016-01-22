@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.RaceEvent;
 import net.burgin.racetrack.gui.actions.*;
+import net.burgin.racetrack.gui.raceEvent.EventInternalFrame;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,9 +38,16 @@ public class FreeRaceTrack extends JFrame implements Runnable {
         setLayout(new BorderLayout());
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(buildFileMenu());
+        menuBar.add(buildConfigureMenu());
         setJMenuBar(menuBar);
         add(desktopPane, BorderLayout.CENTER);
         pack();
+    }
+
+    private JMenu buildConfigureMenu() {
+        JMenu menu = new JMenu("Configure");//todo resource
+        menu.add(new ConfigureRaceTrackAction(this));
+        return menu;
     }
 
     private JMenu buildFileMenu() {

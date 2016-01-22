@@ -93,6 +93,14 @@ public class RaceEvent extends AbstractRaceParent {
         heatGenerator.generateAllRaceHeats();
     }
 
+    public List<RaceResult> generateResults(){
+        List<Race> races  = getRacesAsList();
+        return races.stream()
+                .map(DefaultRaceResult::determineRaceResults)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
     public Participant getRacerForVehicle(Vehicle vehicle) {
         Optional<Participant> first = this.getParticipants().stream()
                 .filter(racer -> racer.getVehicles().contains(vehicle))

@@ -3,12 +3,11 @@ package net.burgin.racetrack.gui.actions;
 import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.RaceEvent;
 import net.burgin.racetrack.gui.FreeRaceTrack;
-import net.burgin.racetrack.gui.RaceEventFileChooser;
+import net.burgin.racetrack.gui.raceEvent.RaceEventFileChooser;
 import net.burgin.racetrack.repository.FileRaceEventRepository;
 import net.burgin.racetrack.repository.RaceEventRepository;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +32,11 @@ public class FileOpenAction extends AbstractAction {
     public void actionPerformed(ActionEvent actionEvent) {
         JFileChooser chooser = new RaceEventFileChooser();
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        File currentDirectory = new File(System.getProperty("user.home") + File.separator + "FreeRaceTrack");
+        if(!currentDirectory.exists()) {
+            currentDirectory.mkdir();
+        }
+        chooser.setCurrentDirectory(currentDirectory);
         if(chooser.showOpenDialog(FreeRaceTrack.getInstance()) == JFileChooser.APPROVE_OPTION){
 
             File selectedFile = chooser.getSelectedFile();

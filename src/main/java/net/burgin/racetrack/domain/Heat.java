@@ -12,6 +12,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Vector;
 import java.util.stream.Collectors;
 
 /**
@@ -28,8 +29,9 @@ public class Heat implements DetectionEventListener{
     String name;
     long startTime;
     @JsonIgnore
-    List<Image> photofinish = new ArrayList<>();
+    List<Image> photofinish = new Vector<>();
 
+    public Heat(){}
     public Heat(Race race, List<Vehicle> vehicles){
         name = race.getName();
         competitors = vehicles.stream()
@@ -45,21 +47,35 @@ public class Heat implements DetectionEventListener{
 
     @Override
     public void eventDetected(DetectionEvent detectionEvent) {
+        if(detectionEvent.getHotSpots().size() < 1){
+            reset();
+            return;
+        }
         long time = detectionEvent.getTime();
+        System.out.println("Adding photo " );
+        photofinish.add(detectionEvent.getImage());
         detectionEvent.getHotSpots().stream()
                 .forEach((hotSpot -> updateTime(hotSpot, time)));
-        photofinish.add(detectionEvent.getImage());
     }
 
     private void updateTime(HotSpot hotSpot, long time) {
-        if(hotSpot.getLane() == -1)
+        if(hotSpot.getLane() == 0 && startTime != 0) {
             startTime = time;
-        else{
-            competitors.get(hotSpot.getLane()).setRaceTime(time - startTime);
+            System.out.println("start time " + startTime);
+        }
+        else if(hotSpot.getLane() > 0){
+            Competitor competitor = competitors.get(hotSpot.getLane());
+            if(competitor.raceTime == 0) {
+                competitor.setRaceTime(time);
+                System.out.println("lane " + hotSpot.getLane() + " time " + time);
+            }
         }
     }
 
     public void reset(){
+        startTime = 0;
         photofinish.clear();
+        competitors.stream()
+                .forEach(competitor -> competitor.setRaceTime(0));
     }
 }

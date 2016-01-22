@@ -1,4 +1,4 @@
-package net.burgin.racetrack.gui;
+package net.burgin.racetrack.gui.participants;
 
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
@@ -7,6 +7,7 @@ import com.github.sarxos.webcam.WebcamResolution;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 /**
@@ -27,7 +28,7 @@ public class GreenScreenPicturePanel extends JPanel{
             System.out.println("No webcams found...");
             System.exit(1);
         }
-        webcam.setViewSize(WebcamResolution.QVGA.getSize());
+        webcam.setViewSize(WebcamResolution.VGA.getSize());
         webcamPanel = new WebcamPanel(webcam,true);
         buildGui();
     }
@@ -81,9 +82,15 @@ public class GreenScreenPicturePanel extends JPanel{
 
     private Image takePicture(){
         BufferedImage image = webcam.getImage();
+        image.createGraphics().drawRenderedImage(image,AffineTransform.getScaleInstance(.5,.5));
+        image = image.getSubimage(0,0,image.getWidth()/2,image.getHeight()/2);
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int newWidth = width - height;
+        image = image.getSubimage(newWidth/2,0,height,height);
         BufferedImage newImage = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_ARGB);
         for(int i=0; i < 3; i++) {
-            image = greenScreen(webcam.getImage(), newImage);
+            image = greenScreen(image, newImage);
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {

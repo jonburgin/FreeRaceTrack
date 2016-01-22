@@ -29,14 +29,14 @@ abstract public class AbstractRace extends AbstractRaceEventChangeNotifier imple
     }
 
     public boolean hasHeatsToRun(){
-        return heats.stream().filter(heat -> heat.startTime == 0).findFirst().isPresent();
+        return heats.size() == 0 || heats.stream().filter(heat -> heat.startTime == 0).findFirst().isPresent();
     }
 
     public boolean hasHeats(){
         return heats.size()>0;
     }
 
-    public RaceResult getRaceResult(){
-        return new DefaultRaceResult(this);
+    public List<RaceResult> getRaceResults(){
+        return DefaultRaceResult.determineRaceResults(this);
     }
 }

@@ -2,15 +2,14 @@ package net.burgin.racetrack.gui.actions;
 
 import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.RaceEvent;
-import net.burgin.racetrack.gui.EventInternalFrame;
+import net.burgin.racetrack.gui.raceEvent.EventInternalFrame;
 import net.burgin.racetrack.gui.FreeRaceTrack;
-import net.burgin.racetrack.gui.RaceEventFileChooser;
+import net.burgin.racetrack.gui.raceEvent.RaceEventFileChooser;
 import net.burgin.racetrack.repository.FileRaceEventRepository;
 import net.burgin.racetrack.repository.RaceEventRepository;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;

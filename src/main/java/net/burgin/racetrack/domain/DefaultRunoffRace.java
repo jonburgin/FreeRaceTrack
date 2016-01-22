@@ -49,8 +49,9 @@ public class DefaultRunoffRace extends AbstractRaceParent implements RunoffRace{
         if(childrenNotReady())
             return new ArrayList<>();
         return getRaces().stream()
-                .map(race -> race.getRaceResult().getCompetitors())
+                .map(race -> race.getRaceResults())
                 .flatMap(List::stream)
+                .map(RaceResult::getCompetitors)
                 .map(l -> l.subList(0, Math.min(getTakeNumber(), l.size())))
                 .flatMap(List::stream)
                 .map(Competitor::getVehicle)

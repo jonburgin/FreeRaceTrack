@@ -23,5 +23,5 @@ public interface Race extends RaceEventChangeNotifier{
     boolean hasHeatsToRun();
     void setHeats(List<Heat> heats);
     @JsonIgnore
-    RaceResult getRaceResult();
+    List<RaceResult> getRaceResults();
 }

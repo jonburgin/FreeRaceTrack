@@ -4,6 +4,7 @@ import com.github.sarxos.webcam.*;
 import net.burgin.racetrack.detection.HotSpotDetector;
 import net.burgin.racetrack.detection.OneTimeHotSpotDetector;
 import net.burgin.racetrack.gui.adapters.WebcamAdapter;
+import net.burgin.racetrack.gui.heats.RacetrackWebcamPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,7 +21,6 @@ public class RaceTrackFrame extends JFrame implements Runnable,
     private Webcam webcam = null;
     private RacetrackWebcamPanel panel = null;
     private WebcamPicker picker = null;
-    private HotSpotDetector hotSpotDetector = new OneTimeHotSpotDetector();;
     private DefaultWebCamListener webCamListener = new DefaultWebCamListener();
     private WindowListener defaultWindowListener = new DefaultWindowListener();
 
@@ -44,14 +44,13 @@ public class RaceTrackFrame extends JFrame implements Runnable,
         panel = new RacetrackWebcamPanel(webcam, false);
         panel.setFitArea(true);
         panel.setFPSDisplayed(true);
-        panel.setHotSpotDetector(hotSpotDetector);
         panel.setDisplayLanes(true);
         add(picker, BorderLayout.NORTH);
         add(this.panel, BorderLayout.CENTER);
         JSpinner spinner = new JSpinner(new SpinnerNumberModel(70,1,100,2));
         spinner.addChangeListener((event)->((OneTimeHotSpotDetector)panel.getHotSpotDetector()).setSensitivity((Integer)((JSpinner)event.getSource()).getValue()));
         JButton button = new JButton("Reset");
-        button.addActionListener((event)->((OneTimeHotSpotDetector)hotSpotDetector).reset());
+        button.addActionListener((event)->panel.getHotSpotDetector().reset());
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(button);
         buttonPanel.add(spinner);

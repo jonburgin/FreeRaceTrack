@@ -6,7 +6,6 @@ import net.burgin.racetrack.RaceTrackResourceBundle;
 import net.burgin.racetrack.domain.RaceEvent;
 import net.burgin.racetrack.domain.Vehicle;
 import net.burgin.racetrack.domain.Participant;
-import net.burgin.racetrack.gui.GreenScreenPicturePanel;
 import net.burgin.racetrack.gui.RaceTrackImageUtils;
 import net.burgin.racetrack.gui.adapters.EditPanelPictureTakerAdapter;
 import net.burgin.racetrack.gui.editablelist.AbstractEditPanel;
@@ -16,13 +15,7 @@ import net.burgin.racetrack.gui.editablelist.EditableList;
 import javax.swing.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**

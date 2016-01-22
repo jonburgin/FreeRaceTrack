@@ -3,7 +3,7 @@ package net.burgin.racetrack.gui.adapters;
 import net.burgin.racetrack.detection.HotSpot;
 import net.burgin.racetrack.detection.HotSpotDetector;
 import net.burgin.racetrack.detection.HotSpotTrack;
-import net.burgin.racetrack.gui.RacetrackWebcamPanel;
+import net.burgin.racetrack.gui.heats.RacetrackWebcamPanel;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class RaceTrackEditorMouseAdapter extends MouseAdapter {
 
     RacetrackWebcamPanel racetrackWebcamPanel;
-    boolean hotSpotPositioning;
+    private boolean hotSpotPositioning;
     private boolean trackPositioning;
     private boolean trackStretching;
 
@@ -26,33 +26,29 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
 
     @Override
     public void mouseDragged(MouseEvent mouseEvent) {
+        if(!(hotSpotPositioning|trackPositioning|trackStretching))
+            return;
         RacetrackWebcamPanel.RacetrackPainter painter = (RacetrackWebcamPanel.RacetrackPainter) racetrackWebcamPanel.getPainter();
+        Point mousePoint = new Point(painter.fromDisplayX(mouseEvent.getX()), painter.fromDisplayY(mouseEvent.getY()));
+        HotSpotTrack hotSpotTrack = racetrackWebcamPanel.getHotSpotTrack();
         if(hotSpotPositioning){
-            HotSpot hotSpot = racetrackWebcamPanel.getHotSpotTrack().getRaceStartHotSpot();
-            hotSpot.getPosition().move(painter.fromDisplayX(mouseEvent.getX()),painter.fromDisplayY(mouseEvent.getY()));
-        }
-        if(trackPositioning){
-            racetrackWebcamPanel.getHotSpotTrack()
-                    .setFinishLinePosition(new Point(painter.fromDisplayX(mouseEvent.getX()), painter.fromDisplayY(mouseEvent.getY())));
-        }
-        if(trackStretching){
-            racetrackWebcamPanel.getHotSpotTrack()
-                    .adjustWidth(new Point(painter.fromDisplayX(mouseEvent.getX()), painter.fromDisplayY(mouseEvent.getY())));
+            hotSpotTrack.setRaceStartPosition(mousePoint);
+        }else if(trackPositioning){
+            hotSpotTrack.setFinishLinePosition(mousePoint);
+        }else if(trackStretching){
+            hotSpotTrack.adjustWidth(mousePoint);
         }
     }
 
     @Override
     public void mouseMoved(MouseEvent mouseEvent) {
-        HotSpot hotSpot = racetrackWebcamPanel.getHotSpotTrack().getRaceStartHotSpot();
-        boolean insideHotspot = closeEnough(mouseEvent,hotSpot.getPosition(),20);
-        Point trackMovePoint = racetrackWebcamPanel.getHotSpotTrack().getMoveHotSpot();
-        boolean insideTrackMove = closeEnough(mouseEvent,trackMovePoint,10);
+        boolean insideHotspot = closeEnough(mouseEvent,racetrackWebcamPanel.getHotSpotTrack().getRaceStartPosition(),20);
+        boolean insideTrackMove = closeEnough(mouseEvent,racetrackWebcamPanel.getHotSpotTrack().getMovePosition(),10);
         if(insideHotspot || insideTrackMove){
             setCursorType(Cursor.MOVE_CURSOR);
             return;
         }
-        Point trackStretchPoint = racetrackWebcamPanel.getHotSpotTrack().getStretchHotSpot();
-        boolean insideTrackStretch = closeEnough(mouseEvent,trackStretchPoint, 20);
+        boolean insideTrackStretch = closeEnough(mouseEvent,racetrackWebcamPanel.getHotSpotTrack().getStretchPosition(), 20);
         if(insideTrackStretch){
             setCursorType(Cursor.E_RESIZE_CURSOR);
             return;
@@ -63,8 +59,9 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
 
     private boolean closeEnough(MouseEvent mouseEvent, Point p, int diameter){
         RacetrackWebcamPanel.RacetrackPainter painter = (RacetrackWebcamPanel.RacetrackPainter) racetrackWebcamPanel.getPainter();
-        //todo need to do reverse transposition
-        return Math.abs(painter.fromDisplayX(mouseEvent.getX()) - p.x) < diameter && Math.abs(painter.fromDisplayY(mouseEvent.getY()) - p.y)< diameter;
+        int mouseX = painter.fromDisplayX(mouseEvent.getX());
+        int mouseY = painter.fromDisplayY(mouseEvent.getY());
+        return Math.abs(mouseX - p.x) < diameter && Math.abs(mouseY - p.y)< diameter;
     }
 
     private void setCursorType(int cursorType){
@@ -75,12 +72,11 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent mouseEvent) {
-        HotSpot hotSpot = racetrackWebcamPanel.getHotSpotTrack().getRaceStartHotSpot();
-        if(closeEnough(mouseEvent,hotSpot.getPosition(),20)){
+        if(closeEnough(mouseEvent,racetrackWebcamPanel.getHotSpotTrack().getRaceStartPosition(),20)){
             hotSpotPositioning = true;
-        }else if(closeEnough(mouseEvent,racetrackWebcamPanel.getHotSpotTrack().getMoveHotSpot(), 10)){
+        }else if(closeEnough(mouseEvent,racetrackWebcamPanel.getHotSpotTrack().getMovePosition(), 10)){
             trackPositioning = true;
-        }else if(closeEnough(mouseEvent,racetrackWebcamPanel.getHotSpotTrack().getStretchHotSpot(),10)){
+        }else if(closeEnough(mouseEvent,racetrackWebcamPanel.getHotSpotTrack().getStretchPosition(),10)){
             trackStretching = true;
         }
         if(trackPositioning || trackStretching || hotSpotPositioning){
@@ -99,13 +95,15 @@ public class RaceTrackEditorMouseAdapter extends MouseAdapter {
     }
 
     protected void quitEditing(){
-        hotSpotPositioning = false;
-        trackPositioning = false;
-        trackStretching = false;
+        if(!(hotSpotPositioning|trackPositioning|trackStretching))
+            return;
+        hotSpotPositioning = trackPositioning = trackStretching = false;
         HotSpotDetector hotSpotDetector = racetrackWebcamPanel.getHotSpotDetector();
         HotSpotTrack hotSpotTrack = racetrackWebcamPanel.getHotSpotTrack();
-        hotSpotDetector.setHotSpots(new ArrayList<>(hotSpotTrack.getLanes().values()));
+        hotSpotDetector.clearHotSpots();
         hotSpotDetector.addHotSpot(hotSpotTrack.getRaceStartHotSpot());
+        hotSpotTrack.getLanes().stream()
+                .forEach(hs->hotSpotDetector.addHotSpot(hs));
         hotSpotDetector.setEnabled(true);
     }
 }

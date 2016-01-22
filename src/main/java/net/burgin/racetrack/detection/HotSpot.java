@@ -1,7 +1,6 @@
 package net.burgin.racetrack.detection;
 
 import lombok.Data;
-import lombok.NonNull;
 
 import java.awt.*;
 
@@ -10,11 +9,10 @@ import java.awt.*;
  */
 @Data
 public class HotSpot {
-    @NonNull
     int lane;
     Point position;
     boolean detected;
-    boolean needsInitialization = true;
+    boolean uninitialized = true;
     int pixel;
     public HotSpot(int lane, Point position){
         this.lane = lane;
@@ -29,10 +27,10 @@ public class HotSpot {
     }
 
     public void reset(){
-        needsInitialization = true;
+        uninitialized = true;
         detected = false;
     }
-    public int HashCode(){
+    public int hashCode(){
         return position.hashCode();
     }//todo need to combine lane here
 }

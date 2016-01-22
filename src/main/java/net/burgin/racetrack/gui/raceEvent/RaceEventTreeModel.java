@@ -1,4 +1,4 @@
-package net.burgin.racetrack.gui;
+package net.burgin.racetrack.gui.raceEvent;
 
 import lombok.Data;
 import net.burgin.racetrack.domain.*;

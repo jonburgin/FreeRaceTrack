@@ -1,4 +1,4 @@
-package net.burgin.racetrack.gui;
+package net.burgin.racetrack.gui.raceEvent;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -8,6 +8,7 @@ import net.burgin.racetrack.gui.editablelist.DefaultEditableListModel;
 import net.burgin.racetrack.gui.editablelist.EditableList;
 import net.burgin.racetrack.gui.heats.HeatPanel;
 import net.burgin.racetrack.gui.participants.ParticipantEditPanel;
+import net.burgin.racetrack.gui.results.RaceResultPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -57,7 +58,7 @@ public class EventInternalFrame extends JInternalFrame {
     }
 
     private Component buildResultsPanel() {
-        return new JPanel();
+        return new RaceResultPanel(raceEvent);
     }
 
     private Component buldParticipantTab() {

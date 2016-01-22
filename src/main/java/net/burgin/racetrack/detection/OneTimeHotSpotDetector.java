@@ -5,9 +5,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.burgin.racetrack.gui.adapters.WebcamAdapter;
 
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.awt.image.BufferedImage;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -17,55 +20,72 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = false)
 public class OneTimeHotSpotDetector extends WebcamAdapter implements HotSpotDetector {
 
-    int sensitivity = 30;
+    int sensitivity = 80;
     List<HotSpot> hotSpots = new ArrayList<>();
     int detectedHotSpots = 0;
     BufferedImage image;
-    List <DetectionEventListener> detectionEventListeners = new ArrayList<>();
+    Set<DetectionEventListener> detectionEventListeners = new HashSet<>();
     boolean enabled = true;//todo is this necessary?
+
+    @Override
+    public void clearHotSpots() {
+        hotSpots.clear();
+    }
 
     public void addHotSpot(HotSpot hotSpot){
         if(!hotSpots.contains(hotSpot))
             hotSpots.add( hotSpot);
     }
 
+    @Override
+    public void addHotSpots(List<HotSpot> hotSpots) {
+        hotSpots.stream()
+                .forEach(hotSpot -> addHotSpot(hotSpot));
+    }
+
     public void reset(){
-        System.out.println("resetting");
+        System.out.println("resetting hotspot detector!");
         detectedHotSpots = 0;
         hotSpots.stream()
-                .forEach((hs) ->hs.reset());
+                .forEach(h-> h.reset());
+
+        //todo this might not be the best pattern here, to send a detection event to say that nothing is detected.
         notifyDetectionEventListeners(new DetectionEvent());
     }
 
-
     @Override
     public void webcamImageObtained(WebcamEvent we) {
-        if(!enabled)
+        if(!enabled ||(detectedHotSpots >= hotSpots.size()))
             return;
-        if(detectedHotSpots >= hotSpots.size())
-            return;
-//        BufferedImage temp = we.getImageIcon();
-//        if(temp == image){
-//            return;
-//        }
-//        image = temp;
         image = we.getImage();
+        HotSpot triggerHotSpot = hotSpots.get(0);
+        Point triggerPosition = triggerHotSpot.getPosition();
+        if(!triggerHotSpot.isDetected() && triggerHotSpot.isUninitialized()){
+            triggerHotSpot.setPixel(image.getRGB(triggerPosition.x, triggerPosition.y));
+                triggerHotSpot.uninitialized = false;
+            return;
+        }
+        boolean raceHasStarted =triggerHotSpot.isDetected() ||
+                significantDifference(triggerHotSpot.getPixel(),image.getRGB(triggerPosition.x,triggerPosition.y));
+        if(!raceHasStarted)
+            return;
         boolean foundOne = false;
         long currentTime = System.currentTimeMillis();
         for (HotSpot hotSpot: hotSpots) {
             if (hotSpot.detected)
                 continue;
-            int currentPixel = image.getRGB(hotSpot.position.x, hotSpot.position.y);
-            if (hotSpot.needsInitialization) {
+            Point hotspotPosition = hotSpot.position;
+            int currentPixel = image.getRGB(hotspotPosition.x, hotspotPosition.y);
+            if (hotSpot.uninitialized) {
                 hotSpot.pixel = currentPixel;
-                hotSpot.needsInitialization = false;
+                hotSpot.uninitialized = false;
                 continue;
             }
             if (significantDifference(hotSpot.pixel, currentPixel)) {
                 detectedHotSpots++;
+                System.out.println("Detected Hotspots " + detectedHotSpots);
                 hotSpot.detected = true;
                 foundOne = true;
-                System.out.println("hotspot detected at " + (hotSpots.indexOf(hotSpot) + 1));
             }
         }
         if(foundOne){
@@ -78,7 +98,8 @@ public class OneTimeHotSpotDetector extends WebcamAdapter implements HotSpotDete
     }
 
     private void notifyDetectionEventListeners(DetectionEvent detectionEvent) {
-        detectionEventListeners.parallelStream().forEach(l ->l.eventDetected(detectionEvent));
+        detectionEventListeners.stream()
+                .forEach(l ->l.eventDetected(detectionEvent));
     }
 
     private boolean significantDifference(int p1, int p2) {
@@ -95,4 +116,10 @@ public class OneTimeHotSpotDetector extends WebcamAdapter implements HotSpotDete
     public void addHotSpotListener(DetectionEventListener detectionEventListener) {
         detectionEventListeners.add(detectionEventListener);
     }
+
+    @Override
+    public void removeHotSpotListener(DetectionEventListener listener) {
+        detectionEventListeners.remove(listener);
+    }
+
 }

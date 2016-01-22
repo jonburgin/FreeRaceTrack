@@ -17,7 +17,7 @@ import java.net.URL;
 public class RaceTrackImageUtils {
     static String homeDirectory = System.getProperty("user.home") + File.separator
             + "FreeRaceTrack" + File.separator
-            + "images" + File.pathSeparator;
+            + "images" + File.separator;
     static BufferedImage defaultPersonImage;
     static BufferedImage defaultVehicleImage;
 
@@ -56,7 +56,7 @@ public class RaceTrackImageUtils {
         }
     }
 
-    static private BufferedImage getDefaultImage(ImageHolder imageHolder){
+    static public BufferedImage getDefaultImage(ImageHolder imageHolder){
         if(imageHolder instanceof Vehicle)
             return defaultVehicleImage;
         return defaultPersonImage;

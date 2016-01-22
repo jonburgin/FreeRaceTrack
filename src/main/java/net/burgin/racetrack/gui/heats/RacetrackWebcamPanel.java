@@ -1,4 +1,4 @@
-package net.burgin.racetrack.gui;
+package net.burgin.racetrack.gui.heats;
 
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
@@ -22,15 +22,18 @@ import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
 @EqualsAndHashCode(callSuper = false)
 public class RacetrackWebcamPanel extends WebcamPanel {
     Webcam webcam;
-    boolean displayLanes ;
-    boolean showHotSpot = true;
-    boolean showRaceTime;
-    private HotSpotTrack hotSpotTrack = new HotSpotTrack();
-    private HotSpotDetector hotSpotDetector;
+    boolean displayLanes = true;
+    boolean showStartHotSpot = true;
+    boolean showRaceTime = true;
+    boolean showCountDown = false;
+    private HotSpotTrack hotSpotTrack = HotSpotTrack.getInstance();
+    private HotSpotDetector hotSpotDetector = new OneTimeHotSpotDetector();
     double scaleX = 1;
     double scaleY = 1;
     int offsetX = 0;
     int offsetY = 0;
+    boolean initializeTrack = true;
+    long countDownTime;
 
     public RacetrackWebcamPanel(Webcam webcam) {
         this(webcam, true);
@@ -43,6 +46,7 @@ public class RacetrackWebcamPanel extends WebcamPanel {
     public RacetrackWebcamPanel(Webcam webcam, Dimension size, boolean start) {
         super(webcam, size, start);
         this.webcam = webcam;
+        webcam.addWebcamListener(hotSpotDetector);
         setPainter(new RacetrackPainter());
         RaceTrackEditorMouseAdapter mouseListener = new RaceTrackEditorMouseAdapter(this);
         addMouseListener(mouseListener);
@@ -50,8 +54,28 @@ public class RacetrackWebcamPanel extends WebcamPanel {
     }
 
     public void setHotSpotDetector(HotSpotDetector hotSpotDetector){
+        if(this.hotSpotDetector != null){
+            webcam.removeWebcamListener(this.hotSpotDetector);
+        }
         this.hotSpotDetector = hotSpotDetector;
         webcam.addWebcamListener(hotSpotDetector);
+    }
+
+    protected void initializeTrack(int width, int height){//todo
+        if(((OneTimeHotSpotDetector)hotSpotDetector).getHotSpots().size() < 1){
+            hotSpotDetector.addHotSpot(hotSpotTrack.getRaceStartHotSpot());
+            hotSpotDetector.addHotSpots(hotSpotTrack.getLanes());
+        }
+        hotSpotTrack.adjustHotSpots();
+        hotSpotDetector.addHotSpot(hotSpotTrack.getRaceStartHotSpot());
+        hotSpotDetector.addHotSpots(hotSpotTrack.getLanes());
+        initializeTrack = false;
+    }
+
+    public void doCountDown(){
+        showCountDown = true;
+        hotSpotDetector.setEnabled(false);
+        countDownTime = System.currentTimeMillis() + 3000;
     }
 
     public class RacetrackPainter implements Painter {
@@ -149,6 +173,9 @@ public class RacetrackWebcamPanel extends WebcamPanel {
             assert image != null;
             assert g2 != null;
 
+            if(initializeTrack){
+                initializeTrack(image.getWidth(), image.getHeight());
+            }
             int panelWidth = getWidth();
             int panelHeight = getHeight();
             int imageWidth = image.getWidth();
@@ -172,7 +199,7 @@ public class RacetrackWebcamPanel extends WebcamPanel {
             scaleX = (double)panelWidth/imageWidth;
             scaleY = (double)panelHeight/imageHeight;
             //this is ridiculous that there is no getDrawMode. Pull request has been submitted.
-            DrawMode drawMode = (isFitArea()?DrawMode.FILL:isFillArea()?DrawMode.FILL:DrawMode.NONE);
+            DrawMode drawMode = (isFitArea()?DrawMode.FIT:isFillArea()?DrawMode.FILL:DrawMode.NONE);
             switch (drawMode) {
                 case NONE:
                     resizedWidth = image.getWidth();
@@ -291,11 +318,17 @@ public class RacetrackWebcamPanel extends WebcamPanel {
                 drawLanes(g2);
             }
 
-            if(showHotSpot){
-                //todo transpose the position!!!
+            if(showStartHotSpot){
                 g2.setColor(Color.WHITE);
-                Point position = hotSpotTrack.getRaceStartHotSpot().getPosition();
-                g2.drawOval(position.x-10, position.y-10, 20,20);
+                HotSpot raceStartHotSpot = hotSpotTrack.getRaceStartHotSpot();
+                Point position = new Point(raceStartHotSpot.getPosition());
+                position.x = toDisplayX(position.x);
+                position.y = toDisplayY(position.y);
+                if(raceStartHotSpot.isDetected()){
+                    g2.fillOval(position.x-10, position.y-10, 20,20);
+                }else {
+                    g2.drawOval(position.x - 10, position.y - 10, 20, 20);
+                }
                 String s = "Start HotSpot";
                 FontMetrics metrics = g2.getFontMetrics(getFont());
                 int stringX = position.x - metrics.stringWidth(s)/2;
@@ -303,41 +336,98 @@ public class RacetrackWebcamPanel extends WebcamPanel {
                 drawString(g2, s,stringX, stringY);
             }
 
-            if(showRaceTime){
-                //TODO
+            if(showRaceTime  && !showCountDown){
+                drawRaceTime(g2);
+            }
+
+            if(showCountDown){
+                doCountDown(g2, panelWidth, panelHeight);
             }
 
             g2.setRenderingHint(KEY_ANTIALIASING, antialiasing);
             g2.setRenderingHint(KEY_RENDERING, rendering);
+        }
+boolean resetNeeded=true;
+        private void doCountDown(Graphics2D g2, int width, int height) {
+            long currentTime = System.currentTimeMillis();
+            if(currentTime > countDownTime) {
+                setFont(getFont().deriveFont(14f));
+                displayLanes = showStartHotSpot = true;
+                showCountDown = false;
+                hotSpotTrack.adjustHotSpots();
+                resetNeeded = true;
+                return;
+            }
+            if(resetNeeded){
+                resetNeeded = false;
+                hotSpotDetector.reset();
+            }
+            displayLanes = showStartHotSpot = false;
+            long diffTime = countDownTime - currentTime;
+            if(diffTime < 500){
+                hotSpotDetector.setEnabled(true);
+            }
+            int period = (int)(diffTime /1000 + 1);
+            String countdownString = "" + period;
+            setFont(getFont().deriveFont(400f));
+            FontMetrics metrics = g2.getFontMetrics(getFont());
+            int stringX = width/2 - metrics.stringWidth(countdownString)/2;
+            int stringY = height/2  +(metrics.getAscent() - metrics.getDescent())/2;
+            drawString(g2, countdownString, stringX, stringY);
+        }
+
+        long startTime;
+        private void drawRaceTime(Graphics2D g2) {
+            long currentTime = System.currentTimeMillis();
+            boolean raceHasStarted = hotSpotTrack.getRaceStartHotSpot().isDetected();
+            if(!raceHasStarted){
+                startTime = 0;
+                return;
+            }else if(startTime ==0){
+                startTime = currentTime;
+            }
+            long raceTime = currentTime - startTime;
+            String timeString = String.format("%3.3f",raceTime/1000f);
+            FontMetrics metrics = g2.getFontMetrics(getFont());
+            Rectangle bounds = g2.getClipBounds();
+            int stringX = bounds.width/2 - metrics.stringWidth(timeString)/2;
+            int stringY = metrics.getHeight() + 5;
+            drawString(g2, timeString, stringX, stringY);
+
+        }
+
+
+        private void drawLane(HotSpot hotSpot, Graphics2D g2){
+            int xDrawOffset = (int)(10 * scaleX);
+            int yDrawOffset = (int)(10 * scaleY);
+            String str = String.format("%d", hotSpot.getLane());
+            FontMetrics metrics = g2.getFontMetrics(getFont());
+            Point position = hotSpot.getPosition();
+            Point displayPosition = new Point(toDisplayX(position.x),toDisplayY(position.y));
+            int stringX = displayPosition.x - metrics.stringWidth(str)/2;
+            int stringY = displayPosition.y - (int)(2* yDrawOffset);
+            drawString(g2, str, stringX, stringY);
+            int[] xPoints = {displayPosition.x - xDrawOffset, displayPosition.x, displayPosition.x + xDrawOffset};
+            int [] yPoints = {displayPosition.y, displayPosition.y -yDrawOffset, displayPosition.y};
+            if(hotSpot.isDetected())
+                g2.fillPolygon(xPoints,yPoints,3);
+            else
+                g2.drawPolygon(xPoints,yPoints,3);
+
         }
 
         private void drawLanes(Graphics2D g2) {
             Point finishLinePosition = new Point(hotSpotTrack.getFinishLinePosition());
             finishLinePosition.x = toDisplayX(finishLinePosition.x);
             finishLinePosition.y = toDisplayY(finishLinePosition.y);
-            int transposedTrackWidth = (int)(hotSpotTrack.getWidth() * scaleX);
+            int displayTrackWidth = (int)(hotSpotTrack.getWidth() * scaleX);
             int xDrawOffset = (int)(10 * scaleX);
             int yDrawOffset = (int)(10 * scaleY);
-
-            hotSpotTrack.getLanes().keySet().stream().forEach(key -> {
-                String str = String.format("%d", key + 1);
-                FontMetrics metrics = g2.getFontMetrics(getFont());
-                HotSpot hotSpot = hotSpotTrack.getLanes().get(key);
-                Point position = hotSpot.getPosition();
-                Point transPosedPosition = new Point(toDisplayX(position.x),toDisplayY(position.y));
-                int stringX = transPosedPosition.x - metrics.stringWidth(str)/2;
-                int stringY = transPosedPosition.y - (int)(2* yDrawOffset);
-                drawString(g2, str, stringX, stringY);
-                int[] xPoints = {transPosedPosition.x - xDrawOffset, transPosedPosition.x, transPosedPosition.x + xDrawOffset};
-                int [] yPoints = {transPosedPosition.y, transPosedPosition.y -yDrawOffset, transPosedPosition.y};
-                if(hotSpot.isDetected())
-                    g2.fillPolygon(xPoints,yPoints,3);
-                else
-                    g2.drawPolygon(xPoints,yPoints,3);
-            });
-            g2.drawLine(finishLinePosition.x, finishLinePosition.y, finishLinePosition.x + transposedTrackWidth, finishLinePosition.y);
-            g2.drawOval(finishLinePosition.x - xDrawOffset, finishLinePosition.y - yDrawOffset/2, xDrawOffset, yDrawOffset);
-            g2.drawOval(finishLinePosition.x + transposedTrackWidth, finishLinePosition.y - yDrawOffset/2, xDrawOffset, yDrawOffset);
+            g2.drawLine(finishLinePosition.x - xDrawOffset, finishLinePosition.y, finishLinePosition.x + displayTrackWidth + xDrawOffset, finishLinePosition.y);
+            g2.drawArc(finishLinePosition.x - xDrawOffset,finishLinePosition.y - yDrawOffset, xDrawOffset*2, yDrawOffset*2,0,-180);
+            g2.drawArc(finishLinePosition.x + displayTrackWidth - xDrawOffset,finishLinePosition.y - yDrawOffset, xDrawOffset*2, yDrawOffset*2,0,-180);
+            hotSpotTrack.getLanes().stream()
+                    .forEach(hotSpot -> drawLane(hotSpot,g2));
         }
 
         public int toDisplayX(int x){

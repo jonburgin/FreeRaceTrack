@@ -26,7 +26,8 @@ public class DefaultHeatGenerator implements HeatGenerator {
     public void generateHeatsForRace(Race race){
         Track track = raceEvent.getTrack();
         List<Vehicle> validVehicles = race instanceof SimpleRace ?(raceEvent.getVehicles((SimpleRace)race)):((RunoffRace)race).getVehicles();
-        race.setHeats(generateHeats(race, validVehicles, track.getLaneCount()));
+        if(!race.hasHeats())
+            race.setHeats(generateHeats(race, validVehicles, track.getLaneCount()));
     }
 
     protected List<Heat> generateHeats(Race race, List<Vehicle> vehicles, int numberOfLanes){
